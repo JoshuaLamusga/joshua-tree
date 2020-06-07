@@ -1,0 +1,18 @@
+{
+  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "rules": {
+    "interface-name": [true, "always-prefix"],
+    "no-console": {
+      "options": ["debug", "info", "log", "time", "timeEnd", "trace"]
+    },
+    "no-implicit-dependencies": [true, "dev"],
+    "no-submodule-imports": false,
+    "no-unused-variable": true,
+    "max-line-length": {
+      "options": [120]
+    },
+    "ordered-imports": true,
+    "semicolon": [true, "always", "ignore-bound-class-methods"],
+    "trailing-comma": false
+  }
+}
