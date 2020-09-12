@@ -16,6 +16,7 @@ const mapStateToProps = (state: IRootState) => {
   };
 };
 
+/** Main props associated with the MenuBarDropdown. */
 export interface CommandBarDropdownProps {
   dropdown: IDropdownProps;
 }

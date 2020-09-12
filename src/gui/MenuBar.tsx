@@ -9,12 +9,12 @@ import {
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { commandIds, invokeCommand } from "../../common/commands/commands";
-import { getStrings } from "../../common/localization/Localization";
-import { localizedStrings } from "../../common/localization/LocalizedStrings";
-import { dispatchSetLocale, dispatchSetTheme } from "../../common/settings/settings.reducers";
-import { loadFromLocalStorage, saveToLocalStorage } from "../../common/storage/persistence";
-import { dispatchSetUserConsentProvided } from "../../common/storage/persistence.reducers";
+import { commandIds, invokeCommand } from "../common/commands/commands";
+import { getStrings } from "../common/localization/Localization";
+import { localizedStrings } from "../common/localization/LocalizedStrings";
+import { dispatchSetLocale, dispatchSetTheme } from "../common/settings/settings.reducers";
+import { loadFromLocalStorage, saveToLocalStorage } from "../common/storage/persistence";
+import { dispatchSetUserConsentProvided } from "../common/storage/persistence.reducers";
 import {
   iconSpaceBeforeTextStyle,
   commandBarItemStyle,
@@ -22,10 +22,10 @@ import {
   commandBarDropdownSeparatorStyle,
   commandBarStyle,
   hiddenAndInaccessible,
-} from "../../common/styles/controlStyles";
-import { ISupportedTheme, themes } from "../../common/theming/themes";
-import { IRootState } from "../../store";
-import { CommandBarDropdown } from "./CommandBarDropdown";
+} from "../common/styles/controlStyles";
+import { ISupportedTheme, themes } from "../common/theming/themes";
+import { IRootState } from "../store";
+import { CommandBarDropdown } from "./MenuBarDropdown";
 
 /**
  * Browsers require a click to invoke an open file dialog, so this invokes a click on a hidden
@@ -35,6 +35,7 @@ export function invokeOpenCommand() {
   hiddenInputRef.current?.click();
 }
 
+/** Browsers require a click event on an input control, which is automatically done via this one. */
 const hiddenInputRef = React.createRef<HTMLInputElement>();
 
 const mapStateToProps = (state: IRootState) => {
@@ -62,7 +63,8 @@ type CombinedProps = MainCommandBarProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
-export class MainCommandBarC extends React.Component<MainCommandBarProps> {
+export class MenuBarC extends React.Component<MainCommandBarProps> {
+  /** Applies all user setting stored in local storage, if consent was provided. */
   public componentDidMount() {
     if ((this.props as CombinedProps).userConsentProvided) {
       this.applyLocalStorage();
@@ -70,6 +72,7 @@ export class MainCommandBarC extends React.Component<MainCommandBarProps> {
   }
 
   public render() {
+    // File-related options.
     const items: ICommandBarItemProps[] = [
       {
         className: commandBarItemStyle((this.props as CombinedProps).theme, true),
@@ -97,6 +100,7 @@ export class MainCommandBarC extends React.Component<MainCommandBarProps> {
       },
     ];
 
+    // Theme and language options.
     const farItems: ICommandBarItemProps[] = [
       {
         ariaLabel: (this.props as CombinedProps).strings.TipTheme,
@@ -111,6 +115,7 @@ export class MainCommandBarC extends React.Component<MainCommandBarProps> {
       },
     ];
 
+    /** Loads the given file to a string for parsing. */
     const handleFile = async (ev: React.ChangeEvent<HTMLInputElement>) => {
       const chosenFiles = ev.target.files;
 
@@ -167,6 +172,7 @@ export class MainCommandBarC extends React.Component<MainCommandBarProps> {
   private renderLocaleDropdown = () => {
     const options: IDropdownOption[] = [];
 
+    // Populates the available locales.
     Object.keys(localizedStrings).forEach((localeOption: string) => {
       options.push({
         data: localeOption,
@@ -175,6 +181,7 @@ export class MainCommandBarC extends React.Component<MainCommandBarProps> {
       });
     });
 
+    /** Switches all GUI to display in the user-chosen language. */
     const updateChangedLocale = (
       event: React.FormEvent<HTMLDivElement>,
       option?: IDropdownOption
@@ -187,6 +194,7 @@ export class MainCommandBarC extends React.Component<MainCommandBarProps> {
       }
     };
 
+    /** Renders the locale dropdown and name of the currently-chosen language. */
     const renderDropdownTitle = () => (
       <>
         <Icon iconName="LocaleLanguage" styles={iconSpaceBeforeTextStyle} />
@@ -217,6 +225,7 @@ export class MainCommandBarC extends React.Component<MainCommandBarProps> {
   private renderThemeDropdown = () => {
     const options: IDropdownOption[] = [];
 
+    // Populates the available themes.
     Object.keys(themes).forEach((themeKey: string) => {
       const theme = themes[themeKey as keyof typeof themes];
 
@@ -227,6 +236,7 @@ export class MainCommandBarC extends React.Component<MainCommandBarProps> {
       });
     });
 
+    /** Switches all GUI to display with the chosen theme. */
     const updateChangedTheme = (_: React.FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
       if (option !== undefined) {
         const theme = option.data as ISupportedTheme;
@@ -236,6 +246,7 @@ export class MainCommandBarC extends React.Component<MainCommandBarProps> {
       }
     };
 
+    /** Renders the theme dropdown and name of the currently-chosen theme. */
     const renderDropdownTitle = () => (
       <span className={mergeStyles((this.props as CombinedProps).theme.fonts.large)}>
         {(this.props as CombinedProps).strings.ThemeDropdownText(
@@ -260,4 +271,4 @@ export class MainCommandBarC extends React.Component<MainCommandBarProps> {
   };
 }
 
-export const MainCommandBar = connect(mapStateToProps, mapDispatchToProps)(MainCommandBarC);
+export const MenuBar = connect(mapStateToProps, mapDispatchToProps)(MenuBarC);

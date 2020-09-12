@@ -3,7 +3,7 @@ import * as React from "react";
 
 export type MainCommandBarProps = {
   /** Props to pass through to the container control with the click action. */
-  containerProps?:Omit<
+  containerProps?: Omit<
     React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLSpanElement>, HTMLSpanElement>,
     "onClick"
   >;
@@ -45,7 +45,8 @@ export class UploadFile extends React.Component<MainCommandBarProps> {
     );
   }
 
+  /** Calls the click event of the underlying input element. */
   private onClick = () => {
     this.inputRef.current?.click();
-  }
+  };
 }

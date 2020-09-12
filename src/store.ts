@@ -3,7 +3,7 @@ import thunk from "redux-thunk";
 import { ISettingState, settings } from "./common/settings/settings.reducers";
 import { IPersistenceState, persistence } from "./common/storage/persistence.reducers";
 
-// Combine reducers and typescript definition.
+/** All reducers. */
 export interface IRootState {
   persistence: IPersistenceState;
   settings: ISettingState;
