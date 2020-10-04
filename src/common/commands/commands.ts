@@ -1,8 +1,9 @@
 import { IShortcut } from "./shortcutManager";
-import { invokeOpenCommand } from "../../gui/MenuBar";
+import { invokeOpenCommand } from "../../shell/gui/MenuBar";
 
 /** A command is a set of functions executed when the command is invoked by identity. */
 export interface ICommand {
+  enableWhileTyping?: boolean;
   disabled?: boolean;
   functionsToInvoke: ICommandFunction[];
   guid: commandIds;
@@ -58,9 +59,6 @@ export const commands: { [key in commandIds]: ICommand } = {
     guid: commandIds.mainMenuFileNew as commandIds,
     shortcuts: [
       {
-        originalSequence: [{ key: "N" }],
-      },
-      {
         originalSequence: [{ key: "N", usesShift: true }],
       },
     ],
@@ -69,9 +67,6 @@ export const commands: { [key in commandIds]: ICommand } = {
     functionsToInvoke: [actionMainMenuFileOpen],
     guid: commandIds.mainMenuFileOpen as commandIds,
     shortcuts: [
-      {
-        originalSequence: [{ key: "O" }],
-      },
       {
         originalSequence: [{ key: "O", usesShift: true }],
       },
@@ -82,9 +77,6 @@ export const commands: { [key in commandIds]: ICommand } = {
     guid: commandIds.mainMenuFileSave as commandIds,
     shortcuts: [
       {
-        originalSequence: [{ key: "S" }],
-      },
-      {
         originalSequence: [{ key: "S", usesShift: true }],
       },
     ],
@@ -93,6 +85,16 @@ export const commands: { [key in commandIds]: ICommand } = {
 
 /** Invokes the command with the given ID. */
 export const invokeCommand = (Id: commandIds, data?: ICommandFunctionData) => {
+  // Silently consume command invocations that aren't enabled while typing. They still consume keypresses.
+  if (
+    commands[Id].enableWhileTyping !== true &&
+    (document.activeElement?.nodeName.toLowerCase() === "textarea" ||
+      (document.activeElement?.nodeName.toLowerCase() === "input" &&
+        document.activeElement.getAttribute("type") === "text"))
+  ) {
+    return;
+  }
+
   if (commands[Id].disabled !== true) {
     commands[Id].functionsToInvoke.forEach((func: ICommandFunction) => {
       if (func.disabled !== true) {

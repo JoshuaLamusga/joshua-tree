@@ -1,5 +1,5 @@
 ## Overview
 
-Interactext is an interactive fiction tool used to write/play games written in a legible syntax, composed online with a decent GUI, extensible through javascript and supporting a rich set of features.
+Interactext is an open-source tool for authoring and playing works of interactive fiction directly in the browser. It can create both "hyperlink" and "parser" style games. Games are represented as specially-formatted text, which can be hand-edited (as with Inform) or generated with the help of dialogs (as with ADRIFT).
 
-This is a Work In Progress, and the README will be updated as progress is made porting over and improving on AdventureText, the Windows-only predecessor to this work.
+Interactext includes an editor and runner. The runner supports live testing.

@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import { Route, Router, Switch } from "react-router";
 import { listenForShortcuts } from "./common/commands/shortcutManager";
 import { store } from "./store";
-import { MainView } from "./gui/MainView";
+import { MainView } from "./shell/gui/MainView";
 import { normalizeStyles } from "./common/styles/normalizeStyles";
 
 initializeIcons(); // Ensures all icons are available.

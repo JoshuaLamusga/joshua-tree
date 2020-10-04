@@ -1,5 +1,7 @@
-import { IStyle, mergeStyles } from "office-ui-fabric-react/lib/Styling";
+import { mergeStyles } from "office-ui-fabric-react/lib/Styling";
 import * as React from "react";
+import { EditorView } from "../../editor/EditorView";
+import { RunnerView } from "../../runner/RunnerView";
 import { MenuBar } from "./MenuBar";
 
 const MainViewS: { [key: string]: string } = {
@@ -17,8 +19,12 @@ export class MainView extends React.Component<{}> {
       <>
         <MenuBar />
         <div className={MainViewS.flex}>
-          <div className={MainViewS.flexChild}>FOO</div>
-          <div className={MainViewS.flexChild}>BAR</div>
+          <div className={MainViewS.flexChild}>
+            <EditorView />
+          </div>
+          <div className={MainViewS.flexChild}>
+            <RunnerView />
+          </div>
         </div>
       </>
     );

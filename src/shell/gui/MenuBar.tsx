@@ -9,12 +9,12 @@ import {
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { commandIds, invokeCommand } from "../common/commands/commands";
-import { getStrings } from "../common/localization/Localization";
-import { localizedStrings } from "../common/localization/LocalizedStrings";
-import { dispatchSetLocale, dispatchSetTheme } from "../common/settings/settings.reducers";
-import { loadFromLocalStorage, saveToLocalStorage } from "../common/storage/persistence";
-import { dispatchSetUserConsentProvided } from "../common/storage/persistence.reducers";
+import { commandIds, invokeCommand } from "../../common/commands/commands";
+import { getStrings } from "../../common/localization/Localization";
+import { localizedStrings } from "../../common/localization/LocalizedStrings";
+import { dispatchSetLocale, dispatchSetTheme } from "../../common/settings/settings.reducers";
+import { loadFromLocalStorage, saveToLocalStorage } from "../../common/storage/persistence";
+import { dispatchSetUserConsentProvided } from "../../common/storage/persistence.reducers";
 import {
   iconSpaceBeforeTextStyle,
   commandBarItemStyle,
@@ -22,9 +22,9 @@ import {
   commandBarDropdownSeparatorStyle,
   commandBarStyle,
   hiddenAndInaccessible,
-} from "../common/styles/controlStyles";
-import { ISupportedTheme, themes } from "../common/theming/themes";
-import { IRootState } from "../store";
+} from "../../common/styles/controlStyles";
+import { ISupportedTheme, themes } from "../../common/theming/themes";
+import { IRootState } from "../../store";
 import { CommandBarDropdown } from "./MenuBarDropdown";
 
 /**
