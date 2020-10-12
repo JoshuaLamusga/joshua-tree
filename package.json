@@ -1,9 +1,9 @@
 {
-  "name": "crystal-keeper",
+  "name": "if-writing-tool",
   "version": "1.0.0",
   "private": true,
-  "description": "Cataloging software for mineral specimens",
-  "homepage": "https://joshualamusga.github.io/Crystal-Keeper-Online/",
+  "description": "IF authoring software",
+  "homepage": "https://joshualamusga.github.io/If-Writing-Tool/",
   "main": "index.js",
   "scripts": {
     "predeploy": "npm run build",
@@ -48,12 +48,11 @@
     "webpack": "^4.42.1",
     "webpack-cleanup-plugin": "0.5.1",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
     "classnames": "2.2.6",
     "history": "^4.10.1",
-    "jszip": "^3.4.0",
     "office-ui-fabric-react": "^7.105.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

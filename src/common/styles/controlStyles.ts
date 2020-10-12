@@ -14,22 +14,18 @@ import {
  * command bar should be styled to fill the command bar vertically, and take enough space to be
  * easy to interact with.
  */
-export const commandBarStyle = (theme: ITheme): ICommandBarStyles => {
-  return {
-    root: {
-      alignItems: "center",
-      borderWidth: "1px",
-      borderBottomStyle: "solid",
-      borderColor: theme.semanticColors.bodyText,
-      padding: "0px",
-    },
-    primarySet: {
-      alignSelf: "stretch",
-    },
-    secondarySet: {
-      alignSelf: "stretch",
-    },
-  };
+export const commandBarStyle: ICommandBarStyles = {
+  root: {
+    alignItems: "center",
+    height: "4vh",
+    padding: "0px",
+  },
+  primarySet: {
+    alignSelf: "stretch",
+  },
+  secondarySet: {
+    alignSelf: "stretch",
+  },
 };
 
 /**
@@ -74,10 +70,19 @@ export const commandBarDropdownSeparatorStyle = (theme: ITheme): Partial<IDropdo
   };
 };
 
-/** The expected minimum margin around components on the page. */
-export const controlMargin: IStyle = {
-  margin: "4px",
-};
+/** Returns a style for the editor text area component. */
+export const textAreaStyle = (theme: ITheme): object => {
+  return {
+    color: theme.semanticColors.bodyText,
+    backgroundColor: theme.semanticColors.bodyStandoutBackground,
+    borderColor: theme.semanticColors.bodyText,
+    borderWidth: "1px",
+    height: "90vh",
+    padding: 0,
+    resize: "none",
+    width: "100%",
+  };
+}
 
 /** Display none. */
 export const hiddenAndInaccessible: IStyle = {

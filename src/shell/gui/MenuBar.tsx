@@ -23,9 +23,10 @@ import {
   commandBarStyle,
   hiddenAndInaccessible,
 } from "../../common/styles/controlStyles";
-import { ISupportedTheme, themes } from "../../common/theming/themes";
+import { ISupportedTheme, themes } from "../../common/themes";
 import { IRootState } from "../../store";
 import { CommandBarDropdown } from "./MenuBarDropdown";
+import { dispatchSetStory } from "../../common/redux/viewedit.reducers";
 
 /**
  * Browsers require a click to invoke an open file dialog, so this invokes a click on a hidden
@@ -43,9 +44,9 @@ const mapStateToProps = (state: IRootState) => {
     locale: state.settings.locale,
     reduxState: state,
     strings: getStrings(state.settings.locale),
-    theme: getTheme(),
     themeName: state.settings.theme.localizedName,
     userConsentProvided: state.persistence.userConsentProvided,
+    wholeTheme: getTheme(),
   };
 };
 
@@ -53,17 +54,18 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     setConsent: dispatchSetUserConsentProvided(dispatch),
     setLocale: dispatchSetLocale(dispatch),
+    setStory: dispatchSetStory(dispatch),
     setTheme: dispatchSetTheme(dispatch),
   };
 };
 
-export type MainCommandBarProps = {};
+export type MainCommandBarOwnProps = {};
 
-type CombinedProps = MainCommandBarProps &
+type CombinedProps = MainCommandBarOwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
-export class MenuBarC extends React.Component<MainCommandBarProps> {
+export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
   /** Applies all user setting stored in local storage, if consent was provided. */
   public componentDidMount() {
     if ((this.props as CombinedProps).userConsentProvided) {
@@ -75,7 +77,7 @@ export class MenuBarC extends React.Component<MainCommandBarProps> {
     // File-related options.
     const items: ICommandBarItemProps[] = [
       {
-        className: commandBarItemStyle((this.props as CombinedProps).theme, true),
+        className: commandBarItemStyle((this.props as CombinedProps).wholeTheme, true),
         data: commandIds.mainMenuFileNew,
         key: "userSettingsCommandBarFileMenuNew",
         name: (this.props as CombinedProps).strings.MenuFileNew,
@@ -83,7 +85,7 @@ export class MenuBarC extends React.Component<MainCommandBarProps> {
         onClick: () => invokeCommand(commandIds.mainMenuFileNew),
       },
       {
-        className: commandBarItemStyle((this.props as CombinedProps).theme, true),
+        className: commandBarItemStyle((this.props as CombinedProps).wholeTheme, true),
         data: commandIds.mainMenuFileOpen,
         key: "userSettingsCommandBarFileMenuOpen",
         name: (this.props as CombinedProps).strings.MenuFileOpen,
@@ -91,7 +93,7 @@ export class MenuBarC extends React.Component<MainCommandBarProps> {
         onClick: () => invokeCommand(commandIds.mainMenuFileOpen),
       },
       {
-        className: commandBarItemStyle((this.props as CombinedProps).theme),
+        className: commandBarItemStyle((this.props as CombinedProps).wholeTheme),
         data: commandIds.mainMenuFileSave,
         key: "userSettingsCommandBarFileMenuSave",
         name: (this.props as CombinedProps).strings.MenuFileSave,
@@ -123,8 +125,8 @@ export class MenuBarC extends React.Component<MainCommandBarProps> {
         const fileReader = new FileReader();
 
         fileReader.onloadend = () => {
-          const strData = fileReader.result as string;
-          alert("not implemented"); //TODO
+          const result = fileReader.result as string;
+          (this.props as CombinedProps).setStory(result);
         };
 
         fileReader.readAsText(chosenFiles[0]);
@@ -143,7 +145,7 @@ export class MenuBarC extends React.Component<MainCommandBarProps> {
           ariaLabel={(this.props as CombinedProps).strings.TipNavigateCommandBar}
           items={items}
           farItems={farItems}
-          styles={commandBarStyle((this.props as CombinedProps).theme)}
+          styles={commandBarStyle}
         />
       </>
     );
@@ -198,7 +200,7 @@ export class MenuBarC extends React.Component<MainCommandBarProps> {
     const renderDropdownTitle = () => (
       <>
         <Icon iconName="LocaleLanguage" styles={iconSpaceBeforeTextStyle} />
-        <span className={mergeStyles((this.props as CombinedProps).theme.fonts.large)}>
+        <span className={mergeStyles((this.props as CombinedProps).wholeTheme.fonts.large)}>
           {localizedStrings[(this.props as CombinedProps).locale].LanguageCodeName}
         </span>
       </>
@@ -248,7 +250,7 @@ export class MenuBarC extends React.Component<MainCommandBarProps> {
 
     /** Renders the theme dropdown and name of the currently-chosen theme. */
     const renderDropdownTitle = () => (
-      <span className={mergeStyles((this.props as CombinedProps).theme.fonts.large)}>
+      <span className={mergeStyles((this.props as CombinedProps).wholeTheme.fonts.large)}>
         {(this.props as CombinedProps).strings.ThemeDropdownText(
           (this.props as CombinedProps).themeName
         )}
@@ -264,7 +266,7 @@ export class MenuBarC extends React.Component<MainCommandBarProps> {
           onRenderTitle: renderDropdownTitle,
           options: options,
           onChange: updateChangedTheme,
-          styles: commandBarDropdownSeparatorStyle((this.props as CombinedProps).theme),
+          styles: commandBarDropdownSeparatorStyle((this.props as CombinedProps).wholeTheme),
         }}
       />
     );

@@ -1,7 +1,7 @@
 import { loadTheme } from "office-ui-fabric-react";
 import { combineReducers, Dispatch } from "redux";
 import { getSupportedLocale, ILocalizedStringSets } from "../localization/Localization";
-import { ISupportedTheme, themes } from "../theming/themes";
+import { ISupportedTheme, themes } from "../themes";
 import { actions, setLocale, setTheme } from "./settings.actions";
 
 /** The user's preferred theme. An empty string here should mean the default theme is applied. */
@@ -24,7 +24,7 @@ export const dispatchSetTheme = (dispatch: Dispatch) => async (supportedTheme: I
   const wholeTheme = loadTheme(supportedTheme.theme);
   document.body.style.backgroundColor = wholeTheme.semanticColors.bodyBackground;
 
-  await dispatch(setTheme({ localizedName: supportedTheme.localizedName, theme: wholeTheme }));
+  dispatch(setTheme({ localizedName: supportedTheme.localizedName, theme: wholeTheme }));
 };
 
 /** The user's preferred language. */

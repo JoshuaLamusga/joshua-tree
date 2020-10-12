@@ -1,6 +1,6 @@
 import { IRootState } from "../../store";
 import { ILocalizedStringSets } from "../localization/Localization";
-import { ISupportedThemes, themes } from "../theming/themes";
+import { ISupportedThemes, themes } from "../themes";
 
 const persistStateVersion = 1;
 const persistStateIdentifier = "CrystalKeeperOnline";

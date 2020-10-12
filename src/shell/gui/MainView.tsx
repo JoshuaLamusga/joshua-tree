@@ -1,12 +1,19 @@
 import { mergeStyles } from "office-ui-fabric-react/lib/Styling";
 import * as React from "react";
-import { EditorView } from "../../editor/EditorView";
-import { RunnerView } from "../../runner/RunnerView";
+import { EditorView } from "../../parsing/editor/EditorView";
+import { RunnerView } from "../../parsing/runner/RunnerView";
 import { MenuBar } from "./MenuBar";
+import { idEditorWrapper, idRunnerWrapper } from "../../common/identifiers";
 
-const MainViewS: { [key: string]: string } = {
-  flex: mergeStyles({ display: "flex" }),
-  flexChild: mergeStyles({ flexGrow: 1 }),
+const MainViewS = {
+  flex: mergeStyles({ display: "flex", alignItems: "stretch" }),
+  editorWrapper: mergeStyles({ height: "90vh", margin: "0 4px 0 0", width: "50vw" }),
+  runnerWrapper: mergeStyles({
+    border: "1px solid black",
+    margin: "0 0 0 4px",
+    width: "50vw",
+    overflowY: "scroll",
+  }),
 };
 
 export class MainView extends React.Component<{}> {
@@ -19,10 +26,10 @@ export class MainView extends React.Component<{}> {
       <>
         <MenuBar />
         <div className={MainViewS.flex}>
-          <div className={MainViewS.flexChild}>
+          <div id={idEditorWrapper} className={MainViewS.editorWrapper}>
             <EditorView />
           </div>
-          <div className={MainViewS.flexChild}>
+          <div id={idRunnerWrapper} className={MainViewS.runnerWrapper}>
             <RunnerView />
           </div>
         </div>

@@ -11,7 +11,7 @@ import { connect } from "react-redux";
 
 const mapStateToProps = (state: IRootState) => {
   return {
-    theme: state.settings.theme,
+    theme: state.settings.theme, // Needed to re-render on theme change.
     wholeTheme: getTheme(),
   };
 };

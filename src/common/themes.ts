@@ -1,5 +1,5 @@
 import { IPartialTheme } from "office-ui-fabric-react";
-import { getStrings } from "../localization/Localization";
+import { getStrings } from "./localization/Localization";
 
 export interface ISupportedTheme {
   localizedName: string;

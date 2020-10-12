@@ -1,6 +1,6 @@
 import { ILocalizedStringSets } from "../localization/Localization";
 import { getActionGuid } from "../redux/reduxTools";
-import { ISupportedTheme } from "../theming/themes";
+import { ISupportedTheme } from "../themes";
 
 export const actions = {
   setLocale: getActionGuid(),
