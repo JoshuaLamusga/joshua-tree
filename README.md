@@ -1,5 +1,8 @@
 Joshua Tree is an open source tool for authoring and playing works of interactive fiction directly in the browser.
 
+## Work In Progress
+**This is an active work in progress. Pull requests will not be accepted yet, and infrastructure is still being updated.**
+
 ## Features
 - **Choice and parser style:** Write choice-style (hyperlink) and parser-style (textbox) games
 - **Platforms:** 💻📱 Runs on the web, so you can write and play anywhere
