@@ -5,13 +5,12 @@ import { Dispatch } from "redux";
 import { idEditorInputfield } from "../../common/identifiers";
 import { dispatchSaveAndRunStory, dispatchSetStory } from "../../common/redux/viewedit.reducers";
 import { IRootState } from "../../store";
-import { textAreaStyle } from "../../common/styles/controlStyles";
+import { editorTextAreaStyle } from "../../common/styles/controlStyles";
 
 const mapStateToProps = (state: IRootState) => {
   return {
     story: state.viewEdit.story,
-    theme: state.settings.theme, // Needed to re-render on theme change.
-    wholeTheme: getTheme(),
+    theme: state.settings.theme,
   };
 };
 
@@ -38,11 +37,10 @@ export class EditorViewC extends React.Component<EditorViewOwnProps> {
   }
 
   public render() {
-    debugger;
     return (
       <>
         <textarea
-          style={textAreaStyle((this.props as CombinedProps).wholeTheme)}
+          style={editorTextAreaStyle((this.props as CombinedProps).theme.theme)}
           id={idEditorInputfield}
           onBlur={this.updateStory}
         />

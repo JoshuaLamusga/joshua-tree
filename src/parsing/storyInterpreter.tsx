@@ -1,4 +1,4 @@
-import { getTheme, mergeStyles, MessageBar, MessageBarType } from "office-ui-fabric-react";
+import { MessageBar, MessageBarType } from "office-ui-fabric-react";
 import * as React from "react";
 import { StoryParseNode } from "./storyParseNode";
 import { Random } from "../common/random";
@@ -10,6 +10,9 @@ import {
   idRunnerOptions,
   idRunnerOptionRestart,
   idRunnerWrapper,
+  idRunnerInputElement,
+  idRunnerOutputElement,
+  idRunnerOptionElement,
 } from "../common/identifiers";
 import { ActionButton } from "office-ui-fabric-react";
 import { numberRegex } from "./expression/utils";
@@ -22,11 +25,22 @@ import { connect } from "react-redux";
 import { TokenNum } from "./expression/TokenNum";
 import { dispatchRerenderStory } from "../common/redux/viewedit.reducers";
 import { Dispatch } from "redux";
+import {
+  runnerInputTextboxStyle,
+  runnerWrapperStyle,
+  runnerOutputWrapperStyle,
+  runnerDefaultInputStyle,
+  runnerDefaultOptionsStyle,
+  runnerDefaultOptionsHighlightStyle,
+  runnerDefaultOutputStyle,
+  runnerDefaultWrapperStyle,
+  fallbackFontStack,
+} from "../common/styles/controlStyles";
+import { themes } from "../common/themes";
 
 // TODO: localize strings in this file.
 
 let uniqueKeyCounter = Number.MIN_SAFE_INTEGER;
-const fallbackFontStack = "Calibri; Times New Roman; Courier New; sans-serif";
 
 const whitespaceRegex = /\s+/gm;
 const colorRegex = /^[0-9|a-f]+$/g;
@@ -42,62 +56,37 @@ interface IVariables {
   [key: string]: number | boolean | string;
 }
 
-interface IInterpreterCustomization {
+interface IInterpreterStyleCustomization {
+  styleInput: { [key: string]: string | number };
+  styleOptions: React.CSSProperties;
+  styleOptionsHighlight: React.CSSProperties;
+  styleOutput: React.CSSProperties;
+  styleRunner: React.CSSProperties;
+}
+
+interface IInterpreterDefaultCustomization {
   discreteInlineLinks: boolean;
   preserveOldOutput: boolean;
   random: Random;
   restartOptionDisabled: boolean;
   restartOptionText: string;
   showErrors: boolean;
-  styleInput: { [key: string]: string | number };
-  styleOptions: { [key: string]: string | number };
-  styleOptionsHighlight: { [key: string]: string | number };
-  styleOutput: { [key: string]: string | number };
-  styleRunner: Partial<CSSStyleDeclaration>;
 }
 
-const defaultCustomization: IInterpreterCustomization = {
-  discreteInlineLinks: false,
-  preserveOldOutput: true,
-  random: new Random(null),
-  restartOptionDisabled: false,
-  restartOptionText: "restart",
-  showErrors: true,
-
-  styleInput: {
-    color: "#ff0000",
-    fontFamily: fallbackFontStack,
-    fontSize: "16px",
-    fontWeight: "400",
-  },
-
-  styleOptions: {
-    color: "#0000ff",
-    fontFamily: fallbackFontStack,
-    fontSize: "16px",
-    fontWeight: "400",
-  },
-
-  styleOptionsHighlight: {
-    color: "#0000ff",
-  },
-
-  styleOutput: {
-    color: "#000000",
-    fontFamily: fallbackFontStack,
-    fontSize: "16px",
-    fontWeight: "400",
-  },
-
-  styleRunner: {
-    backgroundColor: "#ffffff",
-  },
-};
+interface IInterpreterDynamicCustomization {
+  discreteInlineLinks: boolean;
+  preserveOldOutput: boolean;
+  random: Random;
+  restartOptionDisabled: boolean;
+  restartOptionText: string;
+  showErrors: boolean;
+  styles: IInterpreterStyleCustomization;
+}
 
 const mapStateToProps = (state: IRootState) => {
   return {
-    renderTrigger: state.viewEdit.storyRerenderToken, // This is here to re-render. Don't remove.
-    wholeTheme: getTheme(),
+    renderTrigger: state.viewEdit.storyRerenderToken, // Needed to re-render at will.
+    theme: state.settings.theme,
   };
 };
 
@@ -112,7 +101,7 @@ type StoryInterpreterOwnProps = {
   random?: Random;
 };
 
-type StoryInterpreterProps = StoryInterpreterOwnProps &
+type CombinedProps = StoryInterpreterOwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
@@ -153,17 +142,42 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
   /** Stores a copy of all variables as they were just before visiting a new page. This is used when saving. */
   private variablesPrev: IVariables = {};
 
+  private defaultDarkThemeStyle: IInterpreterStyleCustomization = {
+    styleInput: runnerDefaultInputStyle(themes.dark.theme),
+    styleOptions: runnerDefaultOptionsStyle(themes.dark.theme),
+    styleOptionsHighlight: runnerDefaultOptionsHighlightStyle(themes.dark.theme),
+    styleOutput: runnerDefaultOutputStyle(themes.dark.theme),
+    styleRunner: runnerDefaultWrapperStyle(themes.dark.theme),
+  };
+
+  private defaultLightThemeStyle: IInterpreterStyleCustomization = {
+    styleInput: runnerDefaultInputStyle(themes.light.theme),
+    styleOptions: runnerDefaultOptionsStyle(themes.light.theme),
+    styleOptionsHighlight: runnerDefaultOptionsHighlightStyle(themes.light.theme),
+    styleOutput: runnerDefaultOutputStyle(themes.light.theme),
+    styleRunner: runnerDefaultWrapperStyle(themes.light.theme),
+  };
+
+  private defaultCustomization: IInterpreterDefaultCustomization = {
+    discreteInlineLinks: false,
+    preserveOldOutput: true,
+    random: new Random(null),
+    restartOptionDisabled: false,
+    restartOptionText: "restart",
+    showErrors: true,
+  };
+
   /**
    * The current options and styles associated with the engine. Exposed to read and change styles.
    * Note that changes will not trigger a re-render.
    */
-  public customization: IInterpreterCustomization = {} as IInterpreterCustomization;
+  public customization: IInterpreterDynamicCustomization = {} as IInterpreterDynamicCustomization;
 
   /** The restart link for when a page is empty or the link is forcibly shown. */
   private getRestartLink = () =>
     this.addOption(this.customization.restartOptionText, this.restartGame, idRunnerOptionRestart);
 
-  constructor(props: StoryInterpreterProps) {
+  constructor(props: CombinedProps) {
     super(props);
 
     this.refreshInterpreter();
@@ -175,6 +189,323 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     if (this.props.random) {
       this.customization.random = this.props.random;
     }
+  }
+
+  /** Creates and returns a text element styled to represent the player's input. */
+  public addInput(text: string) {
+    return (
+      <p
+        key={`${idRunnerInputElement}-${uniqueKeyCounter++}`}
+        style={this.customization.styles.styleInput}
+      >
+        {text}
+      </p>
+    );
+  }
+
+  /**
+   * Creates and returns a hyperlink styled as an option. For forkNameOrAction, if a string is
+   * provided, it indicates the fork to go to. Passing a function can execute custom code instead.
+   */
+  public addOption(text: string, forkNameOrAction: string | (() => void), key?: string) {
+    const themeStyle = this.customization.styles;
+    const linkAction =
+      typeof forkNameOrAction === "function"
+        ? forkNameOrAction
+        : () => {
+            if (this.customization.preserveOldOutput) {
+              this.content.push(this.addInput(text));
+            }
+
+            this.setFork(forkNameOrAction);
+          };
+
+    return (
+      <ActionButton
+        key={key ? key : `${idRunnerOptionElement}-${uniqueKeyCounter++}`}
+        onClick={linkAction}
+        styles={{
+          root: {
+            ...(themeStyle.styleOptions as object),
+            display: "block",
+            height: "32px",
+          },
+          rootFocused: { ...(themeStyle.styleOptionsHighlight as object) },
+          rootHovered: { ...(themeStyle.styleOptionsHighlight as object) },
+        }}
+        text={text}
+      />
+    );
+  }
+
+  /** Creates and returns a text element styled as output text. */
+  public addOutput(text: string) {
+    return (
+      <p
+        key={`${idRunnerOutputElement}-${uniqueKeyCounter++}`}
+        style={this.customization.styles.styleOutput}
+      >
+        {text}
+      </p>
+    );
+  }
+
+  /** Loads the current progress from local storage if possible. */
+  public loadFile() {
+    // TODO: implement.
+  }
+
+  /** Loads an entry and pushes changes to the page, catching and displaying errors on the screen. */
+  public loadFork() {
+    this.updateLog();
+    this.content = [];
+    this.options = [];
+    this.textboxHidden = true;
+
+    // Clears all timers.
+    this.timers.forEach((ref: NodeJS.Timeout) => {
+      clearTimeout(ref);
+    });
+
+    this.timers = [];
+    this.actions = [];
+
+    // Sets up variables.
+    let tree: StoryParseNode | undefined;
+
+    // Gets the nodes to process, if possible.
+    tree = this.entries[this.fork];
+    if (tree === undefined) {
+      this.setErrorMessage("Interpreter: fork '" + this.fork + "' not found.");
+      return;
+    }
+
+    // Records the previous state of all variables.
+    this.variablesPrev = {};
+    const variablesKeys = Object.keys(this.variables);
+
+    for (let i = 0; i < variablesKeys.length; i++) {
+      this.variablesPrev[variablesKeys[i]] = this.variables[variablesKeys[i]];
+    }
+
+    // Evaluates every node.
+    this.preorderProcess(tree, "");
+
+    // Exits if fork execution stops.
+    if (this.stopEvaluation) {
+      return;
+    }
+
+    // Ensures the fork is considered visited.
+    this.visitFork();
+    this.refreshInterpreterGui();
+  }
+
+  /** Parses a special set of options at the top of the file. */
+  public processHeaderOptions(text: string) {
+    // Clears all old preferences.
+    this.refreshInterpreter();
+
+    let lines = text.split("\n");
+
+    for (let i = 0; i < lines.length; i++) {
+      // Gets the line and words on that line.
+      let line = lines[i];
+      let words = line.split(" ");
+
+      // Gets all text after the option has been named.
+      let input = "";
+
+      for (let j = 1; j < words.length; j++) {
+        input += words[j] + " ";
+      }
+
+      input = input.trim();
+
+      if (line.startsWith("link-style-text")) {
+        this.customization.discreteInlineLinks = true;
+      } else if (line.startsWith("option-default-text")) {
+        this.customization.restartOptionText = input;
+      } else if (line.startsWith("option-default-disable")) {
+        this.customization.restartOptionDisabled = true;
+      } else if (
+        line.startsWith("option-color") ||
+        line.startsWith("option-hover-color") ||
+        line.startsWith("background-color")
+      ) {
+        // Stores the color to be created.
+        let color = "";
+        if (!colorRegex.test(input)) {
+          this.setErrorMessage(
+            "Interpreter: In the line '" +
+              line +
+              "', color must be given in hex format. It can only include numbers 1-9 and upper or lowercase a-f."
+          );
+        } else if (input.length !== 6 && input.length !== 3) {
+          this.setErrorMessage(
+            "Interpreter: In the line '" +
+              line +
+              "', color must be given in hex format using 3 or 6 digits. For example, f00 or 8800f0."
+          );
+        } else if (input.length === 3 || input.length === 6) {
+          color = input.substring(0, input.length);
+        }
+
+        if (line.startsWith("option-color")) {
+          this.customization.styles.styleOptions.color = color;
+        } else if (line.startsWith("option-hover-color")) {
+          this.customization.styles.styleOptionsHighlight.color = color;
+        } else if (line.startsWith("background-color")) {
+          this.customization.styles.styleRunner.backgroundColor = color;
+        }
+      } else if (line.startsWith("output-font-size") || line.startsWith("option-font-size")) {
+        if (!numberRegex.test(input)) {
+          this.setErrorMessage(
+            "Interpreter: In line '" + line + "', a number must be specified after the option."
+          );
+          continue;
+        }
+
+        let number = parseFloat(input);
+
+        if (number <= 0) {
+          this.setErrorMessage(
+            "Interpreter: In line '" + line + "', numbers must be greater than zero."
+          );
+          continue;
+        }
+
+        if (line.startsWith("output-font-size")) {
+          this.customization.styles.styleOutput.fontSize = number;
+        } else if (line.startsWith("option-font-size")) {
+          this.customization.styles.styleOutput.fontSize = number;
+        }
+      } else if (line.startsWith("option-font")) {
+        this.customization.styles.styleOptions.fontFamily = input + "; " + fallbackFontStack;
+      } else if (line.startsWith("output-font")) {
+        this.customization.styles.styleOutput.fontFamily = input + "; " + fallbackFontStack;
+      }
+    }
+  }
+
+  /** Sets or clears an error message. */
+  public setErrorMessage(error: string | undefined) {
+    this.errorMessage = error ?? "";
+    this.refreshInterpreterGui();
+  }
+
+  /** Re-renders the interpreter and applies the chosen background color. */
+  public refreshInterpreterGui() {
+    const runner = document.getElementById(idRunnerWrapper);
+
+    if (runner && this.customization.styles.styleRunner.backgroundColor) {
+      runner.style["backgroundColor"] = this.customization.styles.styleRunner.backgroundColor;
+    }
+
+    this.refreshInterpreterGuiStyles();
+    (this.props as CombinedProps).dispatchRerenderStory();
+  }
+
+  private refreshInterpreterGuiStyles() {
+    const themeStyles =
+      (this.props as CombinedProps).theme.localizedName === themes.light.localizedName
+        ? this.defaultLightThemeStyle
+        : this.defaultDarkThemeStyle;
+
+    this.customization.styles = {
+      styleInput: { ...themeStyles.styleInput },
+      styleOptions: { ...themeStyles.styleOptions },
+      styleOptionsHighlight: { ...themeStyles.styleOptionsHighlight },
+      styleOutput: { ...themeStyles.styleOutput },
+      styleRunner: { ...themeStyles.styleRunner },
+    };
+  }
+
+  /** Renders output. Conditionally renders logs, error message, and textbox. */
+  public render(): React.ReactNode {
+    const restartOption =
+      this.options.length === 0 && !this.customization.restartOptionDisabled
+        ? this.getRestartLink()
+        : undefined;
+
+    const allOutput = [
+      <div key={idRunnerLog} id={idRunnerLog}>
+        {...this.log}
+      </div>,
+      <div key={idRunnerContent} id={idRunnerContent}>
+        {...this.content}
+      </div>,
+      <div key={idRunnerOptions} id={idRunnerOptions}>
+        {...this.options}
+        {restartOption}
+      </div>,
+    ];
+
+    const errorMessage =
+      this.customization.showErrors && this.errorMessage !== "" ? (
+        <MessageBar messageBarType={MessageBarType.error}>{this.errorMessage}</MessageBar>
+      ) : undefined;
+
+    const textbox = !this.textboxHidden ? (
+      <input
+        autoComplete="nah" // Required for browsers to not autocomplete with address.
+        name="textfield" // Required for browsers to not autocomplete with prior entries.
+        id={idRunnerInputfield}
+        key={idRunnerInputfield}
+        onKeyPress={this.onTextboxKeyPress}
+        style={runnerInputTextboxStyle((this.props as CombinedProps).theme.theme)}
+        type="text"
+      />
+    ) : undefined;
+
+    return (
+      <div className={runnerWrapperStyle}>
+        <div className={runnerOutputWrapperStyle}>{...allOutput}</div>
+        {errorMessage}
+        {textbox}
+      </div>
+    );
+  }
+
+  /** Saves the current progress to local storage if possible. */
+  public saveFile() {
+    // TODO: implement.
+  }
+
+  /** For internal use. Sets the entries usually given by the parser. */
+  public setEntries(entries: IPageDictionary) {
+    this.entries = entries;
+  }
+
+  /** For internal use. Sets the entries usually given by the parser. If forkToLoad is an empty string, loads the first fork. */
+  public setEntriesWithFork(entries: IPageDictionary, forkToLoad: string) {
+    this.content = [];
+    this.log = [];
+    this.options = [];
+    this.entries = entries;
+    this.errorMessage = "";
+
+    const entriesKeys = Object.keys(this.entries);
+
+    if (entriesKeys.length === 0) {
+      this.setErrorMessage(
+        "Interpreter: cannot play story. It contains no forks. Use @ at the beginning of a line to denote an fork."
+      );
+    } else {
+      if (forkToLoad !== "" && entriesKeys.includes(forkToLoad)) {
+        this.setFork(forkToLoad);
+      } else {
+        this.setFork(entriesKeys[0]);
+      }
+    }
+  }
+
+  /** For internal use. Sets the fork usually given by parsed entries. */
+  public setFork(forkName: string) {
+    this.fork = forkName;
+    this.stopEvaluation = false;
+
+    this.loadFork();
   }
 
   /** Escapes the given text for all supported escape sequences. */
@@ -673,16 +1004,16 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
           continue;
         }
 
-        const fontStyle = this.customization.styleOutput.fontStyle;
-        const fontWeight = this.customization.styleOutput.fontWeight;
+        const fontStyle = this.customization.styles.styleOutput.fontStyle;
+        const fontWeight = this.customization.styles.styleOutput.fontWeight;
 
         if (output.includes("***}")) {
-          this.customization.styleOutput.fontStyle = "italic";
-          this.customization.styleOutput.fontWeight = "600";
+          this.customization.styles.styleOutput.fontStyle = "italic";
+          this.customization.styles.styleOutput.fontWeight = 600;
         } else if (output.includes("**}")) {
-          this.customization.styleOutput.fontWeight = "600";
+          this.customization.styles.styleOutput.fontWeight = 600;
         } else if (output.includes("*}")) {
-          this.customization.styleOutput.fontStyle = "italic";
+          this.customization.styles.styleOutput.fontStyle = "italic";
         }
 
         // create output
@@ -699,8 +1030,8 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
         // Generates the text
         this.content.push(this.addOutput(output));
 
-        this.customization.styleOutput.fontStyle = fontStyle;
-        this.customization.styleOutput.fontWeight = fontWeight;
+        this.customization.styles.styleOutput.fontStyle = fontStyle;
+        this.customization.styles.styleOutput.fontWeight = fontWeight;
 
         // Removes the processed text.
         textLeft = textLeft.substring(0, lbPos) + textLeft.substring(rbPos + 1, textLeft.length);
@@ -1004,7 +1335,7 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
               "', color must be given in hex format using 3 or 6 digits. For example, f00 or 8800f0."
           );
         } else if (color.length === 3) {
-          this.customization.styleOutput.color = color.substring(0, 3);
+          this.customization.styles.styleOutput.color = color.substring(0, 3);
         }
 
         // Deletes the line just processed.
@@ -1035,17 +1366,13 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     this.actions = [];
     this.content = [];
     this.customization = {
-      discreteInlineLinks: defaultCustomization.discreteInlineLinks,
-      preserveOldOutput: defaultCustomization.preserveOldOutput,
-      random: defaultCustomization.random,
-      showErrors: defaultCustomization.showErrors,
-      styleOptions: { ...defaultCustomization.styleOptions },
-      styleOptionsHighlight: { ...defaultCustomization.styleOptionsHighlight },
-      restartOptionDisabled: defaultCustomization.restartOptionDisabled,
-      restartOptionText: defaultCustomization.restartOptionText,
-      styleInput: { ...defaultCustomization.styleInput },
-      styleOutput: { ...defaultCustomization.styleOutput },
-      styleRunner: { ...defaultCustomization.styleRunner },
+      discreteInlineLinks: this.defaultCustomization.discreteInlineLinks,
+      preserveOldOutput: this.defaultCustomization.preserveOldOutput,
+      random: this.defaultCustomization.random,
+      restartOptionDisabled: this.defaultCustomization.restartOptionDisabled,
+      restartOptionText: this.defaultCustomization.restartOptionText,
+      showErrors: this.defaultCustomization.showErrors,
+      styles: this.customization.styles,
     };
     this.errorMessage = "";
     this.fork = "";
@@ -1054,6 +1381,8 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     this.timers = [];
     this.variables = {};
     this.variablesPrev = {};
+
+    this.refreshInterpreterGuiStyles();
   }
 
   /** Called when a restart link is pressed or restart is invoked. */
@@ -1082,308 +1411,6 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     if (this.variables["visited" + this.fork] === undefined) {
       this.variables["visited" + this.fork] = true;
     }
-  }
-
-  /**
-   * Creates and returns a hyperlink styled as an option. For forkNameOrAction, if a string is
-   * provided, it indicates the fork to go to. Passing a function can execute custom code instead.
-   */
-  public addOption(text: string, forkNameOrAction: string | (() => void), key?: string) {
-    const linkAction =
-      typeof forkNameOrAction === "function"
-        ? forkNameOrAction
-        : () => {
-            if (this.customization.preserveOldOutput) {
-              this.content.push(this.addInput(text));
-            }
-
-            this.setFork(forkNameOrAction);
-          };
-
-    return (
-      <ActionButton
-        key={key ? key : `runner-option-${uniqueKeyCounter++}`}
-        onClick={linkAction}
-        styles={{
-          root: { ...this.customization.styleOptions, display: "block", height: "32px" },
-          rootFocused: { ...this.customization.styleOptionsHighlight },
-          rootHovered: { ...this.customization.styleOptionsHighlight },
-        }}
-        text={text}
-      />
-    );
-  }
-
-  /** Creates and returns a text element styled to represent the player's input. */
-  public addInput(text: string) {
-    return (
-      <p
-        key={`runner-input-${uniqueKeyCounter++}`}
-        className={mergeStyles(this.customization.styleInput)}
-      >
-        {text}
-      </p>
-    );
-  }
-
-  /** Creates and returns a text element styled as output text. */
-  public addOutput(text: string) {
-    return (
-      <p
-        key={`runner-output-${uniqueKeyCounter++}`}
-        className={mergeStyles(this.customization.styleOutput)}
-      >
-        {text}
-      </p>
-    );
-  }
-
-  /** Loads the current progress from local storage if possible. */
-  public loadFile() {
-    // TODO: implement.
-  }
-
-  /** Loads an entry and pushes changes to the page, catching and displaying errors on the screen. */
-  public loadFork() {
-    this.updateLog();
-    this.content = [];
-    this.options = [];
-    this.textboxHidden = true;
-
-    // Clears all timers.
-    this.timers.forEach((ref: NodeJS.Timeout) => {
-      clearTimeout(ref);
-    });
-
-    this.timers = [];
-    this.actions = [];
-
-    // Sets up variables.
-    let tree: StoryParseNode | undefined;
-
-    // Gets the nodes to process, if possible.
-    tree = this.entries[this.fork];
-    if (tree === undefined) {
-      this.setErrorMessage("Interpreter: fork '" + this.fork + "' not found.");
-      return;
-    }
-
-    // Records the previous state of all variables.
-    this.variablesPrev = {};
-    const variablesKeys = Object.keys(this.variables);
-
-    for (let i = 0; i < variablesKeys.length; i++) {
-      this.variablesPrev[variablesKeys[i]] = this.variables[variablesKeys[i]];
-    }
-
-    // Evaluates every node.
-    this.preorderProcess(tree, "");
-
-    // Exits if fork execution stops.
-    if (this.stopEvaluation) {
-      return;
-    }
-
-    // Ensures the fork is considered visited.
-    this.visitFork();
-    this.refreshInterpreterGui();
-  }
-
-  /** Parses a special set of options at the top of the file. */
-  public processHeaderOptions(text: string) {
-    // Clears all old preferences.
-    this.refreshInterpreter();
-
-    let lines = text.split("\n");
-
-    for (let i = 0; i < lines.length; i++) {
-      // Gets the line and words on that line.
-      let line = lines[i];
-      let words = line.split(" ");
-
-      // Gets all text after the option has been named.
-      let input = "";
-
-      for (let j = 1; j < words.length; j++) {
-        input += words[j] + " ";
-      }
-
-      input = input.trim();
-
-      if (line.startsWith("link-style-text")) {
-        this.customization.discreteInlineLinks = true;
-      } else if (line.startsWith("option-default-text")) {
-        this.customization.restartOptionText = input;
-      } else if (line.startsWith("option-default-disable")) {
-        this.customization.restartOptionDisabled = true;
-      } else if (
-        line.startsWith("option-color") ||
-        line.startsWith("option-hover-color") ||
-        line.startsWith("background-color")
-      ) {
-        // Stores the color to be created.
-        let color = "";
-        if (!colorRegex.test(input)) {
-          this.setErrorMessage(
-            "Interpreter: In the line '" +
-              line +
-              "', color must be given in hex format. It can only include numbers 1-9 and upper or lowercase a-f."
-          );
-        } else if (input.length !== 6 && input.length !== 3) {
-          this.setErrorMessage(
-            "Interpreter: In the line '" +
-              line +
-              "', color must be given in hex format using 3 or 6 digits. For example, f00 or 8800f0."
-          );
-        } else if (input.length === 3 || input.length === 6) {
-          color = input.substring(0, input.length);
-        }
-
-        if (line.startsWith("option-color")) {
-          this.customization.styleOptions.color = color;
-        } else if (line.startsWith("option-hover-color")) {
-          this.customization.styleOptionsHighlight.color = color;
-        } else if (line.startsWith("background-color")) {
-          this.customization.styleRunner.backgroundColor = color;
-        }
-      } else if (line.startsWith("output-font-size") || line.startsWith("option-font-size")) {
-        if (!numberRegex.test(input)) {
-          this.setErrorMessage(
-            "Interpreter: In line '" + line + "', a number must be specified after the option."
-          );
-          continue;
-        }
-
-        let number = parseFloat(input);
-
-        if (number <= 0) {
-          this.setErrorMessage(
-            "Interpreter: In line '" + line + "', numbers must be greater than zero."
-          );
-          continue;
-        }
-
-        if (line.startsWith("output-font-size")) {
-          this.customization.styleOutput.fontSize = number;
-        } else if (line.startsWith("option-font-size")) {
-          this.customization.styleOutput.fontSize = number;
-        }
-      } else if (line.startsWith("option-font")) {
-        this.customization.styleOptions.fontFamily = input + "; " + fallbackFontStack;
-      } else if (line.startsWith("output-font")) {
-        this.customization.styleOutput.fontFamily = input + "; " + fallbackFontStack;
-      }
-    }
-  }
-
-  /** Sets or clears an error message. */
-  public setErrorMessage(error: string | undefined) {
-    debugger;
-    this.errorMessage = error ?? "";
-    this.refreshInterpreterGui();
-  }
-
-  /** Re-renders the interpreter and applies the chosen background color. */
-  public refreshInterpreterGui() {
-    const runner = document.getElementById(idRunnerWrapper);
-
-    if (runner && this.customization.styleRunner.backgroundColor) {
-      runner.style["backgroundColor"] = this.customization.styleRunner.backgroundColor;
-    }
-
-    (this.props as StoryInterpreterProps).dispatchRerenderStory();
-  }
-
-  /** Renders output. Conditionally renders logs, error message, and textbox. */
-  public render(): React.ReactNode {
-    const restartOption =
-      this.options.length === 0 && !this.customization.restartOptionDisabled
-        ? this.getRestartLink()
-        : undefined;
-
-    const allOutput = [
-      <div key={idRunnerLog} id={idRunnerLog}>
-        {...this.log}
-      </div>,
-      <div key={idRunnerContent} id={idRunnerContent}>
-        {...this.content}
-      </div>,
-      <div key={idRunnerOptions} id={idRunnerOptions}>
-        {...this.options}
-        {restartOption}
-      </div>,
-    ];
-
-    const errorMessage =
-      this.customization.showErrors && this.errorMessage !== "" ? (
-        <MessageBar messageBarType={MessageBarType.error}>{this.errorMessage}</MessageBar>
-      ) : undefined;
-
-    const textbox = !this.textboxHidden ? (
-      <input
-        name="textfield" // Required for browsers to not autocomplete with prior entries.
-        autoComplete="nah" // Required for browsers to not autocomplete with address.
-        key={idRunnerInputfield}
-        id={idRunnerInputfield}
-        onKeyPress={this.onTextboxKeyPress}
-        style={{
-          alignSelf: "stretch",
-          flexShrink: 1,
-          fontSize: "16px",
-          height: "32px",
-        }}
-        type="text"
-      />
-    ) : undefined;
-
-    return (
-      <div style={{ display: "flex", flexDirection: "column", height: "90vh" }}>
-        <div style={{ flexGrow: 1, margin: "4px" }}>{...allOutput}</div>
-        {errorMessage}
-        {textbox}
-      </div>
-    );
-  }
-
-  /** Saves the current progress to local storage if possible. */
-  public saveFile() {
-    // TODO: implement.
-  }
-
-  /** For internal use. Sets the entries usually given by the parser. */
-  public setEntries(entries: IPageDictionary) {
-    this.entries = entries;
-  }
-
-  /** For internal use. Sets the entries usually given by the parser. If forkToLoad is an empty string, loads the first fork. */
-  public setEntriesWithFork(entries: IPageDictionary, forkToLoad: string) {
-    this.content = [];
-    this.log = [];
-    this.options = [];
-    this.entries = entries;
-    this.errorMessage = "";
-
-    const entriesKeys = Object.keys(this.entries);
-
-    if (entriesKeys.length === 0) {
-      this.setErrorMessage(
-        "Interpreter: cannot play story. It contains no forks. Use @ at the beginning of a line to denote an fork."
-      );
-    } else {
-      if (forkToLoad !== "" && entriesKeys.includes(forkToLoad)) {
-        this.setFork(forkToLoad);
-      } else {
-        this.setFork(entriesKeys[0]);
-      }
-    }
-  }
-
-  /** For internal use. Sets the fork usually given by parsed entries. */
-  public setFork(forkName: string) {
-    this.fork = forkName;
-    this.stopEvaluation = false;
-
-    this.loadFork();
   }
 }
 

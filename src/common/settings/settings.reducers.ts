@@ -7,8 +7,8 @@ import { actions, setLocale, setTheme } from "./settings.actions";
 /** The user's preferred theme. An empty string here should mean the default theme is applied. */
 const theme = (
   state: ISupportedTheme = {
-    localizedName: themes.default.localizedName,
-    theme: loadTheme(themes.default.theme),
+    localizedName: themes.light.localizedName,
+    theme: loadTheme(themes.light.theme),
   },
   action: ReturnType<typeof setTheme>
 ) => {
@@ -21,10 +21,8 @@ const theme = (
 
 /** Sets the full theme based on a partial theme and injects it to update components. */
 export const dispatchSetTheme = (dispatch: Dispatch) => async (supportedTheme: ISupportedTheme) => {
-  const wholeTheme = loadTheme(supportedTheme.theme);
-  document.body.style.backgroundColor = wholeTheme.semanticColors.bodyBackground;
-
-  dispatch(setTheme({ localizedName: supportedTheme.localizedName, theme: wholeTheme }));
+  document.body.style.backgroundColor = supportedTheme.theme.semanticColors.bodyBackground;
+  dispatch(setTheme({ localizedName: supportedTheme.localizedName, theme: supportedTheme.theme }));
 };
 
 /** The user's preferred language. */

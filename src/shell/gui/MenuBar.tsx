@@ -4,7 +4,6 @@ import {
   ICommandBarItemProps,
   Icon,
   IDropdownOption,
-  mergeStyles,
 } from "office-ui-fabric-react";
 import * as React from "react";
 import { connect } from "react-redux";
@@ -136,7 +135,7 @@ export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
     return (
       <>
         <input
-          className={mergeStyles(hiddenAndInaccessible)}
+          className={hiddenAndInaccessible}
           onChange={handleFile}
           ref={hiddenInputRef}
           type="file"
@@ -200,7 +199,7 @@ export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
     const renderDropdownTitle = () => (
       <>
         <Icon iconName="LocaleLanguage" styles={iconSpaceBeforeTextStyle} />
-        <span className={mergeStyles((this.props as CombinedProps).wholeTheme.fonts.large)}>
+        <span style={{ fontSize: `${(this.props as CombinedProps).wholeTheme.fonts.large}` }}>
           {localizedStrings[(this.props as CombinedProps).locale].LanguageCodeName}
         </span>
       </>
@@ -250,7 +249,7 @@ export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
 
     /** Renders the theme dropdown and name of the currently-chosen theme. */
     const renderDropdownTitle = () => (
-      <span className={mergeStyles((this.props as CombinedProps).wholeTheme.fonts.large)}>
+      <span style={{ fontSize: `${(this.props as CombinedProps).wholeTheme.fonts.large}` }}>
         {(this.props as CombinedProps).strings.ThemeDropdownText(
           (this.props as CombinedProps).themeName
         )}
