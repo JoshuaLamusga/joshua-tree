@@ -1,5 +1,5 @@
-import { loadTheme, ITheme } from "office-ui-fabric-react";
 import { getStrings } from "./localization/Localization";
+import { loadTheme, ITheme } from "office-ui-fabric-react/lib/Styling";
 
 export interface ISupportedTheme {
   localizedName: string;

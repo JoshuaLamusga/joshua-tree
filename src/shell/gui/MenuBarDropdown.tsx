@@ -1,8 +1,12 @@
-import { Dropdown, IDropdownProps, getTheme, IDropdownStyles } from "office-ui-fabric-react";
 import * as React from "react";
 import { IRootState } from "store";
 import { connect } from "react-redux";
 import { commandBarDropdownStyle } from "../../common/styles/controlStyles";
+import {
+  IDropdownProps,
+  IDropdownStyles,
+} from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
+import { Dropdown } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown";
 
 const mapStateToProps = (state: IRootState) => {
   return {

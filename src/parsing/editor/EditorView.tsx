@@ -1,4 +1,3 @@
-import { PrimaryButton, getTheme } from "office-ui-fabric-react";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -6,6 +5,7 @@ import { idEditorInputfield } from "../../common/identifiers";
 import { dispatchSaveAndRunStory, dispatchSetStory } from "../../common/redux/viewedit.reducers";
 import { IRootState } from "../../store";
 import { editorTextAreaStyle } from "../../common/styles/controlStyles";
+import { PrimaryButton } from "office-ui-fabric-react/lib/components/Button/PrimaryButton/PrimaryButton";
 
 const mapStateToProps = (state: IRootState) => {
   return {

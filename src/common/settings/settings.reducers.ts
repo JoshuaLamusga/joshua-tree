@@ -1,8 +1,8 @@
-import { loadTheme } from "office-ui-fabric-react";
 import { combineReducers, Dispatch } from "redux";
 import { getSupportedLocale, ILocalizedStringSets } from "../localization/Localization";
 import { ISupportedTheme, themes } from "../themes";
 import { actions, setLocale, setTheme } from "./settings.actions";
+import { loadTheme } from "office-ui-fabric-react/lib/Styling";
 
 /** The user's preferred theme. An empty string here should mean the default theme is applied. */
 const theme = (

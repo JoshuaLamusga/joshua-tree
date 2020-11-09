@@ -1,4 +1,3 @@
-import { getTheme } from "office-ui-fabric-react/lib/Styling";
 import * as React from "react";
 import { EditorView } from "../../parsing/editor/EditorView";
 import { RunnerView } from "../../parsing/runner/RunnerView";

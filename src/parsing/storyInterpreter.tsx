@@ -1,4 +1,3 @@
-import { MessageBar, MessageBarType } from "office-ui-fabric-react";
 import * as React from "react";
 import { StoryParseNode } from "./storyParseNode";
 import { Random } from "../common/random";
@@ -14,7 +13,6 @@ import {
   idRunnerOutputElement,
   idRunnerOptionElement,
 } from "../common/identifiers";
-import { ActionButton } from "office-ui-fabric-react";
 import { numberRegex } from "./expression/utils";
 import { Parser } from "./expression/Parser";
 import { TokenId } from "./expression/TokenId";
@@ -37,6 +35,9 @@ import {
   fallbackFontStack,
 } from "../common/styles/controlStyles";
 import { themes } from "../common/themes";
+import { ActionButton } from "office-ui-fabric-react/lib/components/Button/ActionButton/ActionButton";
+import { MessageBarType } from "office-ui-fabric-react/lib/components/MessageBar/MessageBar.types";
+import { MessageBar } from "office-ui-fabric-react/lib/components/MessageBar/MessageBar";
 
 // TODO: localize strings in this file.
 

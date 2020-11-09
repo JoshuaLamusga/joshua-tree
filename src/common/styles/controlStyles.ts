@@ -1,13 +1,9 @@
-import {
-  IButtonStyles,
-  IStyle,
-  mergeStyles,
-  ITheme,
-  ICommandBarStyles,
-  IIconStyles,
-  IDropdownStyles,
-} from "office-ui-fabric-react";
 import { CSSProperties } from "react";
+import { IButtonStyles } from "office-ui-fabric-react/lib/components/Button/Button.types";
+import { ITheme, mergeStyles, IStyle } from "office-ui-fabric-react/lib/Styling";
+import { IDropdownStyles } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
+import { ICommandBarStyles } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar.types";
+import { IIconStyles } from "office-ui-fabric-react/lib/components/Icon/Icon.types";
 
 /**
  * Returns a style for a dropdown in the command bar. If there are items to the right, renders a

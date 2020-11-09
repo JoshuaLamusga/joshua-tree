@@ -1,10 +1,3 @@
-import {
-  CommandBar,
-  getTheme,
-  ICommandBarItemProps,
-  Icon,
-  IDropdownOption,
-} from "office-ui-fabric-react";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -26,6 +19,11 @@ import { ISupportedTheme, themes } from "../../common/themes";
 import { IRootState } from "../../store";
 import { CommandBarDropdown } from "./MenuBarDropdown";
 import { dispatchSetStory } from "../../common/redux/viewedit.reducers";
+import { getTheme } from "office-ui-fabric-react/lib/Styling";
+import { ICommandBarItemProps } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar.types";
+import { CommandBar } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar";
+import { IDropdownOption } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
+import { Icon } from "office-ui-fabric-react/lib/components/Icon/Icon";
 
 /**
  * Browsers require a click to invoke an open file dialog, so this invokes a click on a hidden
