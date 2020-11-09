@@ -1,11 +1,3 @@
-import {
-  CommandBar,
-  getTheme,
-  ICommandBarItemProps,
-  Icon,
-  IDropdownOption,
-  mergeStyles,
-} from "office-ui-fabric-react";
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
@@ -27,6 +19,11 @@ import { ISupportedTheme, themes } from "../../common/themes";
 import { IRootState } from "../../store";
 import { CommandBarDropdown } from "./MenuBarDropdown";
 import { dispatchSetStory } from "../../common/redux/viewedit.reducers";
+import { getTheme } from "office-ui-fabric-react/lib/Styling";
+import { ICommandBarItemProps } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar.types";
+import { CommandBar } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar";
+import { IDropdownOption } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
+import { Icon } from "office-ui-fabric-react/lib/components/Icon/Icon";
 
 /**
  * Browsers require a click to invoke an open file dialog, so this invokes a click on a hidden
@@ -136,7 +133,7 @@ export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
     return (
       <>
         <input
-          className={mergeStyles(hiddenAndInaccessible)}
+          className={hiddenAndInaccessible}
           onChange={handleFile}
           ref={hiddenInputRef}
           type="file"
@@ -200,7 +197,7 @@ export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
     const renderDropdownTitle = () => (
       <>
         <Icon iconName="LocaleLanguage" styles={iconSpaceBeforeTextStyle} />
-        <span className={mergeStyles((this.props as CombinedProps).wholeTheme.fonts.large)}>
+        <span style={{ fontSize: `${(this.props as CombinedProps).wholeTheme.fonts.large}` }}>
           {localizedStrings[(this.props as CombinedProps).locale].LanguageCodeName}
         </span>
       </>
@@ -250,7 +247,7 @@ export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
 
     /** Renders the theme dropdown and name of the currently-chosen theme. */
     const renderDropdownTitle = () => (
-      <span className={mergeStyles((this.props as CombinedProps).wholeTheme.fonts.large)}>
+      <span style={{ fontSize: `${(this.props as CombinedProps).wholeTheme.fonts.large}` }}>
         {(this.props as CombinedProps).strings.ThemeDropdownText(
           (this.props as CombinedProps).themeName
         )}

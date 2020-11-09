@@ -1,5 +1,5 @@
-import { mergeStyles } from "office-ui-fabric-react";
 import * as React from "react";
+import { hiddenAndInaccessible } from "../../common/styles/controlStyles";
 
 export type MainCommandBarProps = {
   /** Props to pass through to the container control with the click action. */
@@ -34,7 +34,7 @@ export class UploadFile extends React.Component<MainCommandBarProps> {
       <>
         <input
           {...this.props.inputProps}
-          className={mergeStyles(this.props.inputProps.className, { display: "none" })}
+          className={`${this.props.inputProps.className} ${hiddenAndInaccessible}`}
           ref={this.inputRef}
           type="file"
         />

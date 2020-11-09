@@ -3,7 +3,7 @@ import { ILocalizedStringSets } from "../localization/Localization";
 import { ISupportedThemes, themes } from "../themes";
 
 const persistStateVersion = 1;
-const persistStateIdentifier = "CrystalKeeperOnline";
+const persistStateIdentifier = "JoshuaTree";
 
 /** The object states to persist to local storage. */
 export interface IPersistentState {

@@ -5,7 +5,7 @@ import { ILocalizedStringSets } from "./Localization";
 /** All strings localized in all locales. */
 export const localizedStrings: ILocalizedStringSets = {
   "en-us": {
-    ApplicationName: "Interactext",
+    ApplicationName: "Joshua Tree",
     ApplicationNameAndVersion: (appName: string, appVersion: string) =>
       `${appName} version ${appVersion}`,
     LanguageCodeName: "English (United States)",

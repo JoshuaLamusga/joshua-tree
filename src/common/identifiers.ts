@@ -27,3 +27,12 @@ export const idRunnerOptionRestart = "runner-option-restart";
 
 /** Wraps the div that contains everything related to the runner. */
 export const idRunnerWrapper = "runner-wrapper";
+
+/** Identifies an element in the runner designated as representing player input. */
+export const idRunnerInputElement = "runner-input";
+
+/** Identifies an element in the runner designated as representing an option. */
+export const idRunnerOptionElement = "runner-option";
+
+/** Identifies an element in the runner designated as representing game output. */
+export const idRunnerOutputElement = "runner-output";

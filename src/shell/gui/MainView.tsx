@@ -1,22 +1,27 @@
-import { mergeStyles } from "office-ui-fabric-react/lib/Styling";
 import * as React from "react";
 import { EditorView } from "../../parsing/editor/EditorView";
 import { RunnerView } from "../../parsing/runner/RunnerView";
 import { MenuBar } from "./MenuBar";
 import { idEditorWrapper, idRunnerWrapper } from "../../common/identifiers";
+import {
+  mainViewWrapperStyle,
+  mainViewEditorStyle,
+  mainViewRunnerStyle,
+} from "../../common/styles/controlStyles";
+import { connect } from "react-redux";
+import { IRootState } from "../../store";
 
-const MainViewS = {
-  flex: mergeStyles({ display: "flex", alignItems: "stretch" }),
-  editorWrapper: mergeStyles({ height: "90vh", margin: "0 4px 0 0", width: "50vw" }),
-  runnerWrapper: mergeStyles({
-    border: "1px solid black",
-    margin: "0 0 0 4px",
-    width: "50vw",
-    overflowY: "scroll",
-  }),
+const mapStateToProps = (state: IRootState) => {
+  return {
+    theme: state.settings.theme,
+  };
 };
 
-export class MainView extends React.Component<{}> {
+export type MainViewOwnProps = {};
+
+type CombinedProps = MainViewOwnProps & ReturnType<typeof mapStateToProps>;
+
+export class MainViewC extends React.Component<MainViewOwnProps> {
   public componentDidMount() {
     document.body.style.margin = "0px";
   }
@@ -25,11 +30,14 @@ export class MainView extends React.Component<{}> {
     return (
       <>
         <MenuBar />
-        <div className={MainViewS.flex}>
-          <div id={idEditorWrapper} className={MainViewS.editorWrapper}>
+        <div className={mainViewWrapperStyle}>
+          <div id={idEditorWrapper} className={mainViewEditorStyle}>
             <EditorView />
           </div>
-          <div id={idRunnerWrapper} className={MainViewS.runnerWrapper}>
+          <div
+            id={idRunnerWrapper}
+            style={mainViewRunnerStyle((this.props as CombinedProps).theme.theme) as object}
+          >
             <RunnerView />
           </div>
         </div>
@@ -37,3 +45,5 @@ export class MainView extends React.Component<{}> {
     );
   }
 }
+
+export const MainView = connect(mapStateToProps)(MainViewC);

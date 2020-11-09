@@ -1,18 +1,16 @@
-import {
-  Dropdown,
-  IDropdownProps,
-  getTheme,
-  mergeStyles,
-  IDropdownStyles,
-} from "office-ui-fabric-react";
 import * as React from "react";
 import { IRootState } from "store";
 import { connect } from "react-redux";
+import { commandBarDropdownStyle } from "../../common/styles/controlStyles";
+import {
+  IDropdownProps,
+  IDropdownStyles,
+} from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
+import { Dropdown } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown";
 
 const mapStateToProps = (state: IRootState) => {
   return {
-    theme: state.settings.theme, // Needed to re-render on theme change.
-    wholeTheme: getTheme(),
+    theme: state.settings.theme,
   };
 };
 
@@ -32,38 +30,7 @@ class CommandBarDropdownC extends React.Component<CommandBarDropdownProps> {
     return (
       <Dropdown
         {...props}
-        styles={{
-          caretDownWrapper: mergeStyles(
-            { alignSelf: "center", position: "relative", right: "20px", width: "0px" },
-            stylesTyped?.caretDownWrapper
-          ),
-          dropdown: mergeStyles(
-            {
-              display: "flex",
-              height: "100%",
-            },
-            stylesTyped?.dropdown
-          ),
-          dropdownItem: mergeStyles(
-            { ...(this.props as CombinedProps).wholeTheme.fonts.large },
-            stylesTyped?.dropdownItem
-          ),
-          dropdownItemSelected: mergeStyles(
-            { ...(this.props as CombinedProps).wholeTheme.fonts.large },
-            stylesTyped?.dropdownItemSelected
-          ),
-          root: mergeStyles({ alignSelf: "stretch" }, stylesTyped?.root),
-          title: mergeStyles(
-            {
-              height: "100%",
-              border: "0",
-              borderRadius: "unset",
-              display: "flex",
-              alignItems: "center",
-            },
-            stylesTyped?.title
-          ),
-        }}
+        styles={commandBarDropdownStyle((this.props as CombinedProps).theme.theme, stylesTyped)}
       />
     );
   }
