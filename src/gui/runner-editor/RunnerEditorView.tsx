@@ -13,11 +13,11 @@ const mapStateToProps = (state: IRootState) => {
   };
 };
 
-export type MainViewOwnProps = {};
+export type RunnerEditorOwnProps = {};
 
-type CombinedProps = MainViewOwnProps & ReturnType<typeof mapStateToProps>;
+type CombinedProps = RunnerEditorOwnProps & ReturnType<typeof mapStateToProps>;
 
-export class MainViewC extends React.Component<MainViewOwnProps> {
+export class RunnerEditorViewC extends React.Component<RunnerEditorOwnProps> {
   public componentDidMount() {
     document.body.style.margin = "0px";
   }
@@ -39,4 +39,4 @@ export class MainViewC extends React.Component<MainViewOwnProps> {
   }
 }
 
-export const MainView = connect(mapStateToProps)(MainViewC);
+export const RunnerEditorView = connect(mapStateToProps)(RunnerEditorViewC);

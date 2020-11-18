@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import { initializeIcons } from "office-ui-fabric-react";
 import { Route, Router, Switch } from "react-router";
 import { listenForShortcuts } from "./common/commands/shortcutManager";
-import { MainView } from "./gui/runner-editor/MainView";
+import { RunnerEditorView } from "./gui/runner-editor/RunnerEditorView";
 import { store } from "./store";
 
 initializeIcons(); // Ensures all icons are available.
@@ -15,7 +15,7 @@ listenForShortcuts(); // Hooks up global key listeners.
 // Renders based on virtual URL.
 const routing = (
   <Switch>
-    <Route path="/" component={MainView} />
+    <Route path="/" component={RunnerEditorView} />
   </Switch>
 );
 
