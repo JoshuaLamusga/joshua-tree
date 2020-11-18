@@ -29,9 +29,8 @@ export class Random {
   private init_genrand(s: number) {
     this.mt[0] = s >>> 0;
     for (this.mti = 1; this.mti < Random.N; this.mti++) {
-      var s = this.mt[this.mti - 1] ^ (this.mt[this.mti - 1] >>> 30);
-      this.mt[this.mti] =
-        ((((s & 0xffff0000) >>> 16) * 1812433253) << 16) + (s & 0x0000ffff) * 1812433253 + this.mti;
+      const s2 = this.mt[this.mti - 1] ^ (this.mt[this.mti - 1] >>> 30);
+      this.mt[this.mti] = ((((s2 & 0xffff0000) >>> 16) * 1812433253) << 16) + (s2 & 0x0000ffff) * 1812433253 + this.mti;
       /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
       /* In the previous versions, MSBs of the seed affect   */
       /* only MSBs of the array mt[].                        */
@@ -47,14 +46,14 @@ export class Random {
    */
   private _nextInt32(): number {
     var y: number;
-    var mag01 = new Array(0x0, Random.MATRIX_A);
+    var mag01 = [0x0, Random.MATRIX_A];
     /* mag01[x] = x * MATRIX_A  for x=0,1 */
 
     if (this.mti >= Random.N) {
       /* generate N words at one time */
       var kk: number;
 
-      if (this.mti == Random.N + 1)
+      if (this.mti === Random.N + 1)
         /* if init_genrand() has not been called, */
         this.init_genrand(5489);
       /* a default initial seed is used */

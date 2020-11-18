@@ -38,9 +38,7 @@ export const getSupportedLocale = (): keyof ILocalizedStringSets => {
 
 /** Returns the strings for the given locale, or the assumed locale if not provided. */
 export const getStrings = (locale?: keyof ISupportedLocales): ILocalizedStrings => {
-  return localizedStrings[
-    supportedLocales[locale || getSupportedLocale()] as keyof typeof localizedStrings
-  ];
+  return localizedStrings[supportedLocales[locale || getSupportedLocale()] as keyof typeof localizedStrings];
 };
 
 /** All locales to be accepted as valid. */

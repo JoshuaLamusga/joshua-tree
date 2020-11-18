@@ -25,10 +25,7 @@ export const dispatchSetUserConsentProvided = (dispatch: Dispatch) => (isConsent
  * True if local storage customizations have been applied. An attempt to load should be made once
  * after the user has accepted the storage policy and changes to content.
  */
-const customizationApplied = (
-  state = false,
-  action: ReturnType<typeof setCustomizationApplied>
-) => {
+const customizationApplied = (state = false, action: ReturnType<typeof setCustomizationApplied>) => {
   if (action.type === actions.setCustomizationApplied) {
     return action.isApplied;
   }
@@ -37,9 +34,7 @@ const customizationApplied = (
 };
 
 /** Sets the locale id in lowercase, such as en-us. */
-export const dispatchSetCustomizationApplied = (dispatch: Dispatch) => (
-  isCustomizationApplied: boolean
-) => {
+export const dispatchSetCustomizationApplied = (dispatch: Dispatch) => (isCustomizationApplied: boolean) => {
   dispatch(setCustomizationApplied(isCustomizationApplied));
 };
 

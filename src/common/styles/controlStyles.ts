@@ -40,14 +40,8 @@ export const commandBarDropdownStyle = (theme: ITheme, propStyles: IDropdownStyl
       },
       propStyles?.dropdown
     ),
-    dropdownItem: mergeStyles(
-      { ...theme.fonts.large },
-      propStyles?.dropdownItem
-    ),
-    dropdownItemSelected: mergeStyles(
-      { ...theme.fonts.large },
-      propStyles?.dropdownItemSelected
-    ),
+    dropdownItem: mergeStyles({ ...theme.fonts.large }, propStyles?.dropdownItem),
+    dropdownItemSelected: mergeStyles({ ...theme.fonts.large }, propStyles?.dropdownItemSelected),
     root: mergeStyles({ alignSelf: "stretch" }, propStyles?.root),
     title: mergeStyles(
       {
@@ -59,8 +53,8 @@ export const commandBarDropdownStyle = (theme: ITheme, propStyles: IDropdownStyl
       },
       propStyles?.title
     ),
-  }
-}
+  };
+};
 
 /**
  * Returns a style for a command bar item definition that increase button space. If there are
@@ -116,7 +110,7 @@ export const editorTextAreaStyle = (theme: ITheme): object => {
     resize: "none",
     width: "100%",
   };
-}
+};
 
 /** Fonts to use in case other fonts are not available. */
 export const fallbackFontStack = "Calibri; Times New Roman; Courier New; sans-serif";
@@ -159,8 +153,8 @@ export const runnerInputTextboxStyle = (theme: ITheme): CSSProperties => {
     alignSelf: "stretch",
     flexShrink: 1,
     fontSize: "16px",
-    height: "32px"
-  }
+    height: "32px",
+  };
 };
 
 /** Styles the innermost div that contains all generated content in the runner. */
@@ -175,7 +169,7 @@ export const runnerDefaultInputStyle = (theme: ITheme) => {
     color: theme.semanticColors.warningText,
     fontFamily: fallbackFontStack,
     fontSize: "16px",
-    fontWeight: 400
+    fontWeight: 400,
   };
 };
 
@@ -185,14 +179,14 @@ export const runnerDefaultOptionsStyle = (theme: ITheme) => {
     color: theme.semanticColors.primaryButtonText,
     fontFamily: fallbackFontStack,
     fontSize: "16px",
-    fontWeight: 400
+    fontWeight: 400,
   };
 };
 
 /** The default style of options when highlighted in the runner, which changes at runtime. */
 export const runnerDefaultOptionsHighlightStyle = (theme: ITheme) => {
   return {
-    color: theme.semanticColors.primaryButtonTextHovered
+    color: theme.semanticColors.primaryButtonTextHovered,
   };
 };
 
@@ -202,13 +196,13 @@ export const runnerDefaultOutputStyle = (theme: ITheme) => {
     color: theme.semanticColors.bodyText,
     fontFamily: fallbackFontStack,
     fontSize: theme.fonts.large.fontSize,
-    fontWeight: 400
+    fontWeight: 400,
   };
 };
 
 /** The default style of the runner background, which changes at runtime. */
 export const runnerDefaultWrapperStyle = (theme: ITheme) => {
   return {
-    backgroundColor: theme.semanticColors.bodyStandoutBackground
+    backgroundColor: theme.semanticColors.bodyStandoutBackground,
   };
 };
