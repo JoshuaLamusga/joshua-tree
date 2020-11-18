@@ -6,8 +6,7 @@ import { ILocalizedStringSets } from "./Localization";
 export const localizedStrings: ILocalizedStringSets = {
   "en-us": {
     ApplicationName: "Joshua Tree",
-    ApplicationNameAndVersion: (appName: string, appVersion: string) =>
-      `${appName} version ${appVersion}`,
+    ApplicationNameAndVersion: (appName: string, appVersion: string) => `${appName} version ${appVersion}`,
     LanguageCodeName: "English (United States)",
     MenuFile: "File",
     MenuFileNew: "New",

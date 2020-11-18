@@ -6,6 +6,7 @@
   "bracketSpacing": true,
   "singleQuote": false,
   "jsxBracketSameLine": false,
-  "printWidth": 100,
-  "quoteProps": "preserve"
+  "printWidth": 120,
+  "quoteProps": "preserve",
+  "endOfLine": "auto"
 }

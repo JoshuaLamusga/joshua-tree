@@ -35,9 +35,7 @@ const locale = (state = getSupportedLocale(), action: ReturnType<typeof setLocal
 };
 
 /** Sets the locale id in lowercase, such as en-us. */
-export const dispatchSetLocale = (dispatch: Dispatch) => async (
-  localeId: keyof ILocalizedStringSets
-) => {
+export const dispatchSetLocale = (dispatch: Dispatch) => async (localeId: keyof ILocalizedStringSets) => {
   dispatch(setLocale(localeId));
 };
 
