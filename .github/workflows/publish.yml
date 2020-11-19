@@ -16,7 +16,7 @@ jobs:
           echo Restoring node modules
           yarn install
           echo Building the project
-          react-scripts build
+          yarn run build
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@3.7.1
