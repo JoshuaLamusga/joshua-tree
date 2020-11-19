@@ -1,5 +1,5 @@
+import { invokeOpenCommand } from "../../gui/menu/MenuBar";
 import { IShortcut } from "./shortcutManager";
-import { invokeOpenCommand } from "../../shell/gui/MenuBar";
 
 /** A command is a set of functions executed when the command is invoked by identity. */
 export interface ICommand {
