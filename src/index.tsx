@@ -21,7 +21,7 @@ const routing = (
 
 ReactDOM.render(
   <Provider store={store}>
-    <HashRouter basename="/">{routing}</HashRouter>
+    <HashRouter basename={process.env.PUBLIC_URL}>{routing}</HashRouter>
   </Provider>,
   document.getElementById("root")
 );
