@@ -379,41 +379,16 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     }
   }
 
-  /** Sets or clears an error message. */
-  public setErrorMessage(error: string | undefined) {
-    this.errorMessage = error ?? "";
-    this.refreshInterpreterGui();
-  }
-
   /** Re-renders the interpreter and applies the chosen background color. */
   public refreshInterpreterGui() {
-    const runner = document.getElementById(idRunnerWrapper);
-
-    if (runner && this.customization.styles.styleRunner.backgroundColor) {
-      runner.style["backgroundColor"] = this.customization.styles.styleRunner.backgroundColor;
-    }
-
     this.refreshInterpreterGuiStyles();
     (this.props as CombinedProps).dispatchRerenderStory();
   }
 
-  private refreshInterpreterGuiStyles() {
-    const themeStyles =
-      (this.props as CombinedProps).theme.localizedName === themes.light.localizedName
-        ? this.defaultLightThemeStyle
-        : this.defaultDarkThemeStyle;
-
-    this.customization.styles = {
-      styleInput: { ...themeStyles.styleInput },
-      styleOptions: { ...themeStyles.styleOptions },
-      styleOptionsHighlight: { ...themeStyles.styleOptionsHighlight },
-      styleOutput: { ...themeStyles.styleOutput },
-      styleRunner: { ...themeStyles.styleRunner },
-    };
-  }
-
   /** Renders output. Conditionally renders logs, error message, and textbox. */
   public render(): React.ReactNode {
+    this.refreshInterpreterGuiStyles();
+
     const restartOption =
       this.options.length === 0 && !this.customization.restartOptionDisabled ? this.getRestartLink() : undefined;
 
@@ -487,6 +462,12 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
         this.setFork(entriesKeys[0]);
       }
     }
+  }
+
+  /** Sets or clears an error message. */
+  public setErrorMessage(error: string | undefined) {
+    this.errorMessage = error ?? "";
+    this.refreshInterpreterGui();
   }
 
   /** For internal use. Sets the fork usually given by parsed entries. */
@@ -1329,6 +1310,29 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     this.variablesPrev = {};
 
     this.refreshInterpreterGuiStyles();
+  }
+
+  /** Initializes or resets the gui styles. */
+  private refreshInterpreterGuiStyles() {
+    const themeStyles =
+      (this.props as CombinedProps).theme.localizedName === themes.light.localizedName
+        ? this.defaultLightThemeStyle
+        : this.defaultDarkThemeStyle;
+
+    this.customization.styles = {
+      styleInput: { ...themeStyles.styleInput },
+      styleOptions: { ...themeStyles.styleOptions },
+      styleOptionsHighlight: { ...themeStyles.styleOptionsHighlight },
+      styleOutput: { ...themeStyles.styleOutput },
+      styleRunner: { ...themeStyles.styleRunner },
+    };
+
+    // Updates the background color of the runner.
+    const runner = document.getElementById(idRunnerWrapper);
+
+    if (runner && this.customization.styles.styleRunner.backgroundColor) {
+      runner.style["backgroundColor"] = this.customization.styles.styleRunner.backgroundColor;
+    }
   }
 
   /** Called when a restart link is pressed or restart is invoked. */
