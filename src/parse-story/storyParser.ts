@@ -51,7 +51,7 @@ function isOutput(text: string, index: number) {
   return true;
 }
 
-/** Returns a dictionary containing a node tree for each fork. */
+/** Updates the passed-in interpreter with a node tree for each fork. */
 export function parseStory(story: string, interpreter: React.RefObject<StoryInterpreterC>, forkToLoad?: string) {
   const entries: { [key: string]: string } = {};
   const parsed: { [key: string]: StoryParseNode } = {};

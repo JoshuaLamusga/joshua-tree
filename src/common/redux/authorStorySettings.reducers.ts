@@ -56,9 +56,20 @@ const authorStoryRunnerOptions = (state = {}, action: ReturnType<typeof actions.
   return state;
 };
 
-const authorStoryRunnerStyles = (state = {}, action: ReturnType<typeof actions.setAuthorStoryRunnerStyles>) => {
+const authorStoryRunnerStyles = (
+  state = { background: { type: "plain" } },
+  action: ReturnType<typeof actions.setAuthorStoryRunnerStyles>
+) => {
   if (action.type === actions.actions.setAuthorStoryRunnerStyles) {
     return action.style;
+  }
+
+  return state;
+};
+
+const authorStoryStrings = (state = {}, action: ReturnType<typeof actions.setAuthorStoryStrings>) => {
+  if (action.type === actions.actions.setAuthorStoryStrings) {
+    return action.strings;
   }
 
   return state;
@@ -86,7 +97,7 @@ export const dispatchSetAuthorStoryOutputStyles = (dispatch: Dispatch) => (style
   dispatch(actions.setAuthorStoryOutputStyles(style));
 };
 
-export const dispatchSetAuthorStoryRunnerOptions = (dispatch: Dispatch) => (options: types.IRunnerOptions) => {
+export const dispatchSetAuthorStoryRunnerOptions = (dispatch: Dispatch) => (options: types.IAuthorRunnerOptions) => {
   dispatch(actions.setAuthorStoryRunnerOptions(options));
 };
 
@@ -94,15 +105,20 @@ export const dispatchSetAuthorStoryRunnerStyles = (dispatch: Dispatch) => (style
   dispatch(actions.setAuthorStoryRunnerStyles(style));
 };
 
+export const dispatchSetAuthorStoryStrings = (dispatch: Dispatch) => (strings: types.IAuthorRunnerStrings) => {
+  dispatch(actions.setAuthorStoryStrings(strings));
+};
+
 // Combine reducers and typescript definition.
 export interface IAuthorStorySettingsState {
-  authorStoryInputStyles: string;
-  authorStoryLogSeparatorStyles: string;
-  authorStoryOptionStyles: string;
-  authorStoryOptionHighlightStyles: string;
-  authorStoryOutputStyles: string;
-  authorStoryRunnerOptions: string;
-  authorStoryRunnerStyles: string;
+  authorStoryInputStyles: types.ITextStyle;
+  authorStoryLogSeparatorStyles: types.IRunnerLogSeparatorStyle;
+  authorStoryOptionStyles: types.ITextStyle;
+  authorStoryOptionHighlightStyles: types.ITextStyle;
+  authorStoryOutputStyles: types.ITextStyle;
+  authorStoryRunnerOptions: types.IAuthorRunnerOptions;
+  authorStoryRunnerStyles: types.IRunnerStyle;
+  authorStoryStrings: types.IAuthorRunnerStrings;
 }
 
 export const authorStorySettings = combineReducers({
@@ -113,4 +129,5 @@ export const authorStorySettings = combineReducers({
   authorStoryOutputStyles,
   authorStoryRunnerOptions,
   authorStoryRunnerStyles,
+  authorStoryStrings,
 });

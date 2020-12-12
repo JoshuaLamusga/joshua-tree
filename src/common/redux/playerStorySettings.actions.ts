@@ -1,5 +1,5 @@
 import { getActionGuid } from "./reduxTools";
-import { IRunnerLogSeparatorStyle, IRunnerStyle, IRunnerOptions, ITextStyle } from "./typedefs";
+import { IRunnerLogSeparatorStyle, IRunnerStyle, IPlayerRunnerOptions, ITextStyle } from "./typedefs";
 
 export const actions = {
   setPlayerStoryInputStyles: getActionGuid(),
@@ -69,7 +69,7 @@ export const setPlayerStoryOutputStyles = (style: ITextStyle) => {
 /**
  * Sets story options such as logging behavior.
  */
-export const setPlayerStoryRunnerOptions = (options: IRunnerOptions) => {
+export const setPlayerStoryRunnerOptions = (options: IPlayerRunnerOptions) => {
   return {
     type: actions.setPlayerStoryRunnerOptions,
     options,

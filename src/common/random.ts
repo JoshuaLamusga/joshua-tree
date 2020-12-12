@@ -18,12 +18,17 @@ export class Random {
   mti = Random.N + 1;
   /* mti==N+1 means mt[N] is not initialized */
 
+  /** The seed used when constructing the RNG. Read only. */
+  public readonly seed: number | null = null;
+
   constructor(seed: number | null = null) {
     if (seed == null) {
-      seed = new Date().getTime();
+      this.seed = new Date().getTime();
+    } else {
+      this.seed = seed;
     }
 
-    this.init_genrand(seed);
+    this.init_genrand(this.seed);
   }
 
   private init_genrand(s: number) {

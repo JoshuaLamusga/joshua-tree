@@ -5,6 +5,7 @@ import { IPersistenceState, persistence } from "./common/storage/persistence.red
 import { IViewEditState, viewEdit } from "./common/redux/viewedit.reducers";
 import { IAuthorStorySettingsState, authorStorySettings } from "./common/redux/authorStorySettings.reducers";
 import { IPlayerStorySettingsState, playerStorySettings } from "./common/redux/playerStorySettings.reducers";
+import { ICurrentRunnerSettingsState, currentRunnerSettings } from "./common/redux/currentRunnerSettings.reducers";
 
 /** All reducers. */
 export interface IRootState {
@@ -12,6 +13,7 @@ export interface IRootState {
   settings: ISettingState;
   viewEdit: IViewEditState;
   authorStorySettings: IAuthorStorySettingsState;
+  currentRunnerSettings: ICurrentRunnerSettingsState;
   playerStorySettings: IPlayerStorySettingsState;
 }
 
@@ -20,6 +22,7 @@ const rootReducer = combineReducers({
   settings,
   viewEdit,
   authorStorySettings,
+  currentRunnerSettings,
   playerStorySettings,
 });
 

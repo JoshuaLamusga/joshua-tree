@@ -1,5 +1,11 @@
 import { getActionGuid } from "./reduxTools";
-import { IRunnerLogSeparatorStyle, IRunnerStyle, IRunnerOptions, ITextStyle } from "./typedefs";
+import {
+  IRunnerLogSeparatorStyle,
+  IRunnerStyle,
+  IAuthorRunnerOptions,
+  ITextStyle,
+  IAuthorRunnerStrings,
+} from "./typedefs";
 
 export const actions = {
   setAuthorStoryInputStyles: getActionGuid(),
@@ -9,6 +15,7 @@ export const actions = {
   setAuthorStoryOutputStyles: getActionGuid(),
   setAuthorStoryRunnerOptions: getActionGuid(),
   setAuthorStoryRunnerStyles: getActionGuid(),
+  setAuthorStoryStrings: getActionGuid(),
 };
 
 /**
@@ -69,7 +76,7 @@ export const setAuthorStoryOutputStyles = (style: ITextStyle) => {
 /**
  * Sets story options such as logging behavior.
  */
-export const setAuthorStoryRunnerOptions = (options: IRunnerOptions) => {
+export const setAuthorStoryRunnerOptions = (options: IAuthorRunnerOptions) => {
   return {
     type: actions.setAuthorStoryRunnerOptions,
     options,
@@ -84,5 +91,15 @@ export const setAuthorStoryRunnerStyles = (style: IRunnerStyle) => {
   return {
     type: actions.setAuthorStoryRunnerStyles,
     style,
+  };
+};
+
+/**
+ * Overrides special built-in strings relevant to the story.
+ */
+export const setAuthorStoryStrings = (strings: IAuthorRunnerStrings) => {
+  return {
+    type: actions.setAuthorStoryStrings,
+    strings,
   };
 };

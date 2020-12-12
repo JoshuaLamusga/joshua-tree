@@ -56,7 +56,10 @@ const playerStoryRunnerOptions = (state = {}, action: ReturnType<typeof actions.
   return state;
 };
 
-const playerStoryRunnerStyles = (state = {}, action: ReturnType<typeof actions.setPlayerStoryRunnerStyles>) => {
+const playerStoryRunnerStyles = (
+  state = { background: { type: "plain" } },
+  action: ReturnType<typeof actions.setPlayerStoryRunnerStyles>
+) => {
   if (action.type === actions.actions.setPlayerStoryRunnerStyles) {
     return action.style;
   }
@@ -86,7 +89,7 @@ export const dispatchSetPlayerStoryOutputStyles = (dispatch: Dispatch) => (style
   dispatch(actions.setPlayerStoryOutputStyles(style));
 };
 
-export const dispatchSetPlayerStoryRunnerOptions = (dispatch: Dispatch) => (options: types.IRunnerOptions) => {
+export const dispatchSetPlayerStoryRunnerOptions = (dispatch: Dispatch) => (options: types.IPlayerRunnerOptions) => {
   dispatch(actions.setPlayerStoryRunnerOptions(options));
 };
 
@@ -96,13 +99,13 @@ export const dispatchSetPlayerStoryRunnerStyles = (dispatch: Dispatch) => (style
 
 // Combine reducers and typescript definition.
 export interface IPlayerStorySettingsState {
-  playerStoryInputStyles: string;
-  playerStoryLogSeparatorStyles: string;
-  playerStoryOptionStyles: string;
-  playerStoryOptionHighlightStyles: string;
-  playerStoryOutputStyles: string;
-  playerStoryRunnerOptions: string;
-  playerStoryRunnerStyles: string;
+  playerStoryInputStyles: types.ITextStyle;
+  playerStoryLogSeparatorStyles: types.IRunnerLogSeparatorStyle;
+  playerStoryOptionStyles: types.ITextStyle;
+  playerStoryOptionHighlightStyles: types.ITextStyle;
+  playerStoryOutputStyles: types.ITextStyle;
+  playerStoryRunnerOptions: types.IPlayerRunnerOptions;
+  playerStoryRunnerStyles: types.IRunnerStyle;
 }
 
 export const playerStorySettings = combineReducers({

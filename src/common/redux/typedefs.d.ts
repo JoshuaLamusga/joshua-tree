@@ -99,20 +99,50 @@ export interface IRunnerTextUnderlayStyle {
   opacity?: number;
 }
 
-/** Options affecting the behavior of the player. */
-export interface IRunnerOptions {
+/** Options the author chooses that affect the behavior of the runner. */
+export interface IAuthorRunnerOptions {
+  /**
+   * If true, inline links are styled like regular text. The beam cursor is used. This doesn't prevent screen readers
+   * or tabbing from revealing inline links.
+   */
+  discreteInlineLinks?: true;
+
+  /** Whether to hide old output and input blocks in the runner. Default false. */
+  hideLog?: true;
+
+  /** Whether to hide the restart link when there are no hyperlinks out of a page. Default false. */
+  hideRestartLink?: true;
+
   /** Number of output and input blocks to preserve. Default unrestricted. */
   logLimit?: number;
 
-  /** Whether to show old output and input blocks in the player. Default true. */
-  showLog?: false;
+  /** A seed to use for random number generation, if provided. Defaults to a value based on the current millisecond. */
+  randomSeed?: number;
 }
 
-// prebuilt style profiles for simplicity so people don't have to fiddle with everything (and ability to define new ones)
-// spelling/grammar
-// autosave and manual save control
-// file format needs a section for plugin data and a callback to handle it. Use a dict with plugin name as key.
-// hyperlink styling
-// feature to register plugins once they have loaded, using a unique key. Feature to require players to have named plugins (with download hyperlink and notes).
-// track version
-// keyboard shortcuts and overrides (nothing affecting the player)
+/** String overrides for built-in strings. */
+export interface IAuthorRunnerStrings {
+  /** Overrides the text for the default restart link. Defaults to "restart". */
+  restartLinkText?: string;
+}
+
+/** Options the player chooses that affect the behavior of the runner. */
+export interface IPlayerRunnerOptions {
+  /**
+   * A value from 0 to 1 for the volume of all audio, overriding author settings. Audio doesn't play or load if the
+   * value is 0. Defaults to 1.
+   */
+  audioVolume?: number;
+
+  /** Doesn't show or load graphics when true. Defaults to false. */
+  disableGraphics?: true;
+
+  /** If true, does not populate suggestions for commands in the textbox. False by default. */
+  disableTextSuggestions?: true;
+
+  /** If true, audio elements only play on touch. False by default. */
+  manualAudio?: true;
+
+  /** If true, graphical elements are hidden until revealed by touch. False by default. */
+  manualGraphics?: true;
+}
