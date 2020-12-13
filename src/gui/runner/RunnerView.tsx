@@ -6,6 +6,7 @@ import { IRootState } from "../../store";
 
 const mapStateToProps = (state: IRootState) => {
   return {
+    renderTrigger: state.viewEdit.storyReparseToken, // Needed to re-render without story changing.
     storyToParse: state.viewEdit.storyToParse,
   };
 };

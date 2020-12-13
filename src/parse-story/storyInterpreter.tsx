@@ -1,6 +1,5 @@
 import * as React from "react";
 import { StoryParseNode } from "./storyParseNode";
-import { Random } from "../common/random";
 import { IPageDictionary } from "./storyParser";
 import {
   idRunnerContent,
@@ -21,11 +20,6 @@ import {
   runnerInputTextboxStyle,
   runnerWrapperStyle,
   runnerOutputWrapperStyle,
-  runnerDefaultInputStyle,
-  runnerDefaultOptionsStyle,
-  runnerDefaultOptionsHighlightStyle,
-  runnerDefaultOutputStyle,
-  runnerDefaultWrapperStyle,
   fallbackFontStack,
 } from "../common/styles/controlStyles";
 import { themes } from "../common/themes";
@@ -38,6 +32,11 @@ import { TokenBool } from "../parse-expressions/TokenBool";
 import { TokenFunc } from "../parse-expressions/TokenFunc";
 import { TokenId } from "../parse-expressions/TokenId";
 import { TokenNum } from "../parse-expressions/TokenNum";
+import { ITextStyle } from "../common/redux/typedefs";
+import { dispatchSetTempStoryRunnerOptions } from "../common/redux/currentRunnerSettings.reducers";
+import { dispatchSetAuthorStoryRunnerStyles } from "../common/redux/authorStorySettings.reducers";
+import { Random } from "../common/random";
+import { fallbackElementType, getTextStyle } from "../common/styles/interpreterStyles";
 
 // TODO: localize strings in this file.
 
@@ -51,42 +50,25 @@ const escapeNoBraceRegex = /\\at|\\n|\\s/g;
 
 /** An expression parser used by the interpreter to resolve expressions for variable assignments. */
 const exprParser = new Parser();
+let random: Random | undefined;
 
-/** The interface for the variable dictionary. */
+/** A dictionary of all variables in the current game. */
 interface IVariables {
   [key: string]: number | boolean | string;
 }
 
-interface IInterpreterStyleCustomization {
-  styleInput: { [key: string]: string | number };
-  styleOptions: React.CSSProperties;
-  styleOptionsHighlight: React.CSSProperties;
-  styleOutput: React.CSSProperties;
-  styleRunner: React.CSSProperties;
-}
-
-interface IInterpreterDefaultCustomization {
-  discreteInlineLinks: boolean;
-  preserveOldOutput: boolean;
-  random: Random;
-  restartOptionDisabled: boolean;
-  restartOptionText: string;
-  showErrors: boolean;
-}
-
-interface IInterpreterDynamicCustomization {
-  discreteInlineLinks: boolean;
-  preserveOldOutput: boolean;
-  random: Random;
-  restartOptionDisabled: boolean;
-  restartOptionText: string;
-  showErrors: boolean;
-  styles: IInterpreterStyleCustomization;
-}
+/**
+ * Returns an element that reads from the current state so it updates with theme changes. In being function-based, it's
+ * only recomputed when the element is evaluated.
+ */
+type InterpreterNode = (props: CombinedProps) => JSX.Element;
 
 const mapStateToProps = (state: IRootState) => {
   return {
-    renderTrigger: state.viewEdit.storyRerenderToken, // Needed to re-render at will.
+    authorStorySettings: state.authorStorySettings,
+    currentStorySettings: state.currentRunnerSettings,
+    playerStorySettings: state.playerStorySettings,
+    renderTrigger: state.viewEdit.storyRerenderToken, // Needed to re-render after output/input/logs change.
     theme: state.settings.theme,
   };
 };
@@ -94,12 +76,13 @@ const mapStateToProps = (state: IRootState) => {
 const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     dispatchRerenderStory: dispatchRerenderStory(dispatch),
+    dispatchSetAuthorStoryRunnerStyles: dispatchSetAuthorStoryRunnerStyles(dispatch),
+    dispatchSetTempStoryRunnerOptions: dispatchSetTempStoryRunnerOptions(dispatch),
   };
 };
 
 type StoryInterpreterOwnProps = {
-  showErrors?: boolean;
-  random?: Random;
+  debugging?: boolean;
 };
 
 type CombinedProps = StoryInterpreterOwnProps &
@@ -111,7 +94,19 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
   private actions: ((text: string) => void)[] = [];
 
   /** The content of the current page. */
-  private content: JSX.Element[] = [];
+  private content: InterpreterNode[] = [];
+
+  /** The content of the current page after evaluating each item with current theme values. */
+  private contentCached: JSX.Element[] = [];
+
+  /** Story styling of options that are created. Styling precedence is player > story > author. */
+  private currentOptionStyles: ITextStyle = {};
+
+  /** Story styling of options when they are highlighted. Styling precedence is player > story > author. */
+  private currentOptionHighlightStyles: ITextStyle = {};
+
+  /** Story styling of output that gets created. Styling precedence is player > story > author. */
+  private currentOutputStyles: ITextStyle = {};
 
   /** Stores all tree entries. */
   private entries: IPageDictionary = {};
@@ -123,10 +118,16 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
   private fork = "";
 
   /** Keeps a list of all previous content, if not disabled. */
-  private log: JSX.Element[] = [];
+  private log: InterpreterNode[] = [];
+
+  /** Keeps a list of all previous content after evaluating each item with current theme values, if not disabled. */
+  private logCached: JSX.Element[] = [];
 
   /** Hyperlink options to the next page. */
-  private options: JSX.Element[] = [];
+  private options: InterpreterNode[] = [];
+
+  /** Hyperlink options to the next page, evaluated with current theme values. */
+  private optionsCached: JSX.Element[] = [];
 
   /** Used to stop evaluation of the current fork entirely. */
   private stopEvaluation = false;
@@ -143,59 +144,49 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
   /** Stores a copy of all variables as they were just before visiting a new page. This is used when saving. */
   private variablesPrev: IVariables = {};
 
-  private defaultDarkThemeStyle: IInterpreterStyleCustomization = {
-    styleInput: runnerDefaultInputStyle(themes.dark.theme),
-    styleOptions: runnerDefaultOptionsStyle(themes.dark.theme),
-    styleOptionsHighlight: runnerDefaultOptionsHighlightStyle(themes.dark.theme),
-    styleOutput: runnerDefaultOutputStyle(themes.dark.theme),
-    styleRunner: runnerDefaultWrapperStyle(themes.dark.theme),
-  };
-
-  private defaultLightThemeStyle: IInterpreterStyleCustomization = {
-    styleInput: runnerDefaultInputStyle(themes.light.theme),
-    styleOptions: runnerDefaultOptionsStyle(themes.light.theme),
-    styleOptionsHighlight: runnerDefaultOptionsHighlightStyle(themes.light.theme),
-    styleOutput: runnerDefaultOutputStyle(themes.light.theme),
-    styleRunner: runnerDefaultWrapperStyle(themes.light.theme),
-  };
-
-  private defaultCustomization: IInterpreterDefaultCustomization = {
-    discreteInlineLinks: false,
-    preserveOldOutput: true,
-    random: new Random(null),
-    restartOptionDisabled: false,
-    restartOptionText: "restart",
-    showErrors: true,
-  };
-
-  /**
-   * The current options and styles associated with the engine. Exposed to read and change styles.
-   * Note that changes will not trigger a re-render.
-   */
-  public customization: IInterpreterDynamicCustomization = {} as IInterpreterDynamicCustomization;
-
   /** The restart link for when a page is empty or the link is forcibly shown. */
-  private getRestartLink = () =>
-    this.addOption(this.customization.restartOptionText, this.restartGame, idRunnerOptionRestart);
+  private getRestartLink = () => {
+    return this.addOption(
+      (this.props as CombinedProps).authorStorySettings.authorStoryStrings.restartLinkText || "restart", // TODO: localize
+      this.restartGame,
+      idRunnerOptionRestart
+    );
+  };
 
   constructor(props: CombinedProps) {
     super(props);
-
     this.refreshInterpreter();
+  }
 
-    if (this.props.showErrors) {
-      this.customization.showErrors = this.props.showErrors;
+  public shouldComponentUpdate(nextProps: Readonly<StoryInterpreterOwnProps>) {
+    const newProps = nextProps as CombinedProps;
+
+    // Update random if necessary.
+    if (!random || newProps.authorStorySettings.authorStoryRunnerOptions.randomSeed !== random.seed) {
+      random = new Random(newProps.authorStorySettings.authorStoryRunnerOptions.randomSeed);
     }
 
-    if (this.props.random) {
-      this.customization.random = this.props.random;
-    }
+    // Recompute cached versions of all components.
+    this.contentCached = this.content.map((node: InterpreterNode) => node(newProps));
+    this.logCached = this.log.map((node: InterpreterNode) => node(newProps));
+    this.optionsCached = this.options.map((node: InterpreterNode) => node(newProps));
+
+    return true;
   }
 
   /** Creates and returns a text element styled to represent the player's input. */
   public addInput(text: string) {
-    return (
-      <p key={`${idRunnerInputElement}-${uniqueKeyCounter++}`} style={this.customization.styles.styleInput}>
+    return (props: CombinedProps) => (
+      <p
+        key={`${idRunnerInputElement}-${uniqueKeyCounter++}`}
+        style={getTextStyle(
+          props.theme,
+          !props.debugging ? props.playerStorySettings.playerStoryInputStyles : {},
+          {}, // can't pass styles
+          props.authorStorySettings.authorStoryInputStyles,
+          fallbackElementType.input
+        )}
+      >
         {text}
       </p>
     );
@@ -206,43 +197,81 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
    * provided, it indicates the fork to go to. Passing a function can execute custom code instead.
    */
   public addOption(text: string, forkNameOrAction: string | (() => void), key?: string) {
-    const themeStyle = this.customization.styles;
+    const style = Object.assign({}, this.currentOptionStyles);
+
+    const combinedProps = this.props as CombinedProps;
     const linkAction =
       typeof forkNameOrAction === "function"
         ? forkNameOrAction
         : () => {
-            if (this.customization.preserveOldOutput) {
+            // When clicking the option, push player input to content if at least one item is logged.
+            if (
+              !combinedProps.authorStorySettings.authorStoryRunnerOptions.hideLog &&
+              (!combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit ||
+                combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit > 0)
+            ) {
               this.content.push(this.addInput(text));
             }
 
+            // Go to the fork (moves old content to logs as a side effect).
             this.setFork(forkNameOrAction);
           };
 
-    return (
-      <ActionButton
-        key={key ? key : `${idRunnerOptionElement}-${uniqueKeyCounter++}`}
-        onClick={linkAction}
-        styles={{
-          root: {
-            ...(themeStyle.styleOptions as object),
-            display: "block",
-            height: "32px",
-          },
-          rootFocused: { ...(themeStyle.styleOptionsHighlight as object) },
-          rootHovered: { ...(themeStyle.styleOptionsHighlight as object) },
-        }}
-        text={text}
-      />
-    );
+    return (props: CombinedProps) => {
+      const styleOptions = getTextStyle(
+        props.theme,
+        !props.debugging ? props.playerStorySettings.playerStoryOptionStyles : {},
+        style,
+        props.authorStorySettings.authorStoryOptionStyles,
+        fallbackElementType.option
+      );
+
+      const styleOptionsHighlight = getTextStyle(
+        props.theme,
+        !props.debugging ? props.playerStorySettings.playerStoryOptionHighlightStyles : {},
+        style,
+        props.authorStorySettings.authorStoryOptionHighlightStyles,
+        fallbackElementType.optionHighlight
+      );
+
+      return (
+        <ActionButton
+          key={key || `${idRunnerOptionElement}-${uniqueKeyCounter++}`}
+          onClick={linkAction}
+          styles={{
+            root: {
+              ...(styleOptions as object),
+              display: "block",
+              fontSize: "16px",
+            },
+            rootFocused: { ...(styleOptionsHighlight as object) },
+            rootHovered: { ...(styleOptionsHighlight as object) },
+          }}
+          text={text}
+        />
+      );
+    };
   }
 
   /** Creates and returns a text element styled as output text. */
   public addOutput(text: string) {
-    return (
-      <p key={`${idRunnerOutputElement}-${uniqueKeyCounter++}`} style={this.customization.styles.styleOutput}>
-        {text}
-      </p>
-    );
+    const style = Object.assign({}, this.currentOutputStyles);
+
+    return (props: CombinedProps) => {
+      const styleOutput = getTextStyle(
+        props.theme,
+        !props.debugging ? props.playerStorySettings.playerStoryOutputStyles : {},
+        style,
+        props.authorStorySettings.authorStoryOutputStyles,
+        fallbackElementType.output
+      );
+
+      return (
+        <span key={`${idRunnerOutputElement}-${uniqueKeyCounter++}`} style={styleOutput}>
+          {text}
+        </span>
+      );
+    };
   }
 
   /** Loads the current progress from local storage if possible. */
@@ -298,6 +327,8 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
 
   /** Parses a special set of options at the top of the file. */
   public processHeaderOptions(text: string) {
+    const combinedProps = this.props as CombinedProps;
+
     // Clears all old preferences.
     this.refreshInterpreter();
 
@@ -318,11 +349,15 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
       input = input.trim();
 
       if (line.startsWith("link-style-text")) {
-        this.customization.discreteInlineLinks = true;
-      } else if (line.startsWith("option-default-text")) {
-        this.customization.restartOptionText = input;
+        combinedProps.dispatchSetTempStoryRunnerOptions({
+          ...combinedProps.currentStorySettings.currentRunnerSettings,
+          discreteInlineLinks: true,
+        });
       } else if (line.startsWith("option-default-disable")) {
-        this.customization.restartOptionDisabled = true;
+        combinedProps.dispatchSetTempStoryRunnerOptions({
+          ...combinedProps.currentStorySettings.currentRunnerSettings,
+          hideRestartLink: true,
+        });
       } else if (
         line.startsWith("option-color") ||
         line.startsWith("option-hover-color") ||
@@ -347,11 +382,44 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
         }
 
         if (line.startsWith("option-color")) {
-          this.customization.styles.styleOptions.color = color;
+          this.currentOptionStyles.colorDark = color;
+          this.currentOptionStyles.colorLight = color;
+        } else if (line.startsWith("option-color-light")) {
+          this.currentOptionStyles.colorLight = color;
+        } else if (line.startsWith("option-color-dark")) {
+          this.currentOptionStyles.colorDark = color;
         } else if (line.startsWith("option-hover-color")) {
-          this.customization.styles.styleOptionsHighlight.color = color;
+          this.currentOptionHighlightStyles.colorDark = color;
+          this.currentOptionHighlightStyles.colorLight = color;
+        } else if (line.startsWith("option-hover-color-light")) {
+          this.currentOptionHighlightStyles.colorLight = color;
+        } else if (line.startsWith("option-hover-color-dark")) {
+          this.currentOptionHighlightStyles.colorDark = color;
         } else if (line.startsWith("background-color")) {
-          this.customization.styles.styleRunner.backgroundColor = color;
+          combinedProps.dispatchSetAuthorStoryRunnerStyles({
+            background: {
+              ...combinedProps.authorStorySettings.authorStoryRunnerStyles,
+              colorDark: color,
+              colorLight: color,
+              type: "plain",
+            },
+          });
+        } else if (line.startsWith("background-color-light")) {
+          combinedProps.dispatchSetAuthorStoryRunnerStyles({
+            background: {
+              ...combinedProps.authorStorySettings.authorStoryRunnerStyles,
+              colorLight: color,
+              type: "plain",
+            },
+          });
+        } else if (line.startsWith("background-color-dark")) {
+          combinedProps.dispatchSetAuthorStoryRunnerStyles({
+            background: {
+              ...combinedProps.authorStorySettings.authorStoryRunnerStyles,
+              colorDark: color,
+              type: "plain",
+            },
+          });
         }
       } else if (line.startsWith("output-font-size") || line.startsWith("option-font-size")) {
         if (!numberRegex.test(input)) {
@@ -367,71 +435,50 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
         }
 
         if (line.startsWith("output-font-size")) {
-          this.customization.styles.styleOutput.fontSize = number;
+          this.currentOutputStyles.fontSize = number.toString();
         } else if (line.startsWith("option-font-size")) {
-          this.customization.styles.styleOutput.fontSize = number;
+          this.currentOptionStyles.fontSize = number.toString();
         }
       } else if (line.startsWith("option-font")) {
-        this.customization.styles.styleOptions.fontFamily = input + "; " + fallbackFontStack;
+        this.currentOptionStyles.font = `${input}; ${fallbackFontStack}`;
       } else if (line.startsWith("output-font")) {
-        this.customization.styles.styleOutput.fontFamily = input + "; " + fallbackFontStack;
+        this.currentOutputStyles.font = `${input}; ${fallbackFontStack}`;
       }
     }
   }
 
-  /** Sets or clears an error message. */
-  public setErrorMessage(error: string | undefined) {
-    this.errorMessage = error ?? "";
-    this.refreshInterpreterGui();
-  }
-
   /** Re-renders the interpreter and applies the chosen background color. */
   public refreshInterpreterGui() {
-    const runner = document.getElementById(idRunnerWrapper);
-
-    if (runner && this.customization.styles.styleRunner.backgroundColor) {
-      runner.style["backgroundColor"] = this.customization.styles.styleRunner.backgroundColor;
-    }
-
     this.refreshInterpreterGuiStyles();
     (this.props as CombinedProps).dispatchRerenderStory();
   }
 
-  private refreshInterpreterGuiStyles() {
-    const themeStyles =
-      (this.props as CombinedProps).theme.localizedName === themes.light.localizedName
-        ? this.defaultLightThemeStyle
-        : this.defaultDarkThemeStyle;
-
-    this.customization.styles = {
-      styleInput: { ...themeStyles.styleInput },
-      styleOptions: { ...themeStyles.styleOptions },
-      styleOptionsHighlight: { ...themeStyles.styleOptionsHighlight },
-      styleOutput: { ...themeStyles.styleOutput },
-      styleRunner: { ...themeStyles.styleRunner },
-    };
-  }
-
   /** Renders output. Conditionally renders logs, error message, and textbox. */
   public render(): React.ReactNode {
+    this.refreshInterpreterGuiStyles();
+
+    const combinedProps = this.props as CombinedProps;
+
     const restartOption =
-      this.options.length === 0 && !this.customization.restartOptionDisabled ? this.getRestartLink() : undefined;
+      this.options.length === 0 && !combinedProps.authorStorySettings.authorStoryRunnerOptions.hideRestartLink
+        ? [this.getRestartLink() as InterpreterNode]
+        : [];
 
     const allOutput = [
       <div key={idRunnerLog} id={idRunnerLog}>
-        {this.log}
+        {this.logCached}
       </div>,
       <div key={idRunnerContent} id={idRunnerContent}>
-        {this.content}
+        {this.contentCached}
       </div>,
       <div key={idRunnerOptions} id={idRunnerOptions}>
-        {this.options}
+        {this.optionsCached}
         {restartOption}
       </div>,
     ];
 
     const errorMessage =
-      this.customization.showErrors && this.errorMessage !== "" ? (
+      this.props.debugging && this.errorMessage !== "" ? (
         <MessageBar messageBarType={MessageBarType.error}>{this.errorMessage}</MessageBar>
       ) : undefined;
 
@@ -448,11 +495,13 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     ) : undefined;
 
     return (
-      <div className={runnerWrapperStyle}>
-        <div className={runnerOutputWrapperStyle}>{allOutput}</div>
-        {errorMessage}
-        {textbox}
-      </div>
+      <>
+        <div className={runnerWrapperStyle}>
+          <div className={runnerOutputWrapperStyle}>{allOutput}</div>
+          {errorMessage}
+          {textbox}
+        </div>
+      </>
     );
   }
 
@@ -487,6 +536,12 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
         this.setFork(entriesKeys[0]);
       }
     }
+  }
+
+  /** Sets or clears an error message. */
+  public setErrorMessage(error: string | undefined) {
+    this.errorMessage = error ?? "";
+    this.refreshInterpreterGui();
   }
 
   /** For internal use. Sets the fork usually given by parsed entries. */
@@ -569,6 +624,8 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
    * parsed the next time input is submitted through the textbox.
    */
   private processIf(node: StoryParseNode, textboxText: string): boolean {
+    const combinedProps = this.props as CombinedProps;
+
     // If there are no conditions, consider it met.
     if (node.condition.trim() === "") {
       return true;
@@ -681,7 +738,11 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
             }
 
             // If still executing, conditions are met.
-            if (this.customization.preserveOldOutput) {
+            if (
+              !combinedProps.authorStorySettings.authorStoryRunnerOptions.hideLog &&
+              (!combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit ||
+                combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit > 0)
+            ) {
               this.content.push(this.addInput(text));
             }
 
@@ -723,7 +784,11 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
             text = text.toLowerCase().trim();
 
             if ((words[1] === "is" && text === query) || (words[1] === "!is" && text !== query)) {
-              if (this.customization.preserveOldOutput) {
+              if (
+                !combinedProps.authorStorySettings.authorStoryRunnerOptions.hideLog &&
+                (!combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit ||
+                  combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit > 0)
+              ) {
                 this.content.push(this.addInput(text));
               }
 
@@ -769,7 +834,11 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
             }
 
             // If still executing, conditions are met.
-            if (this.customization.preserveOldOutput) {
+            if (
+              !combinedProps.authorStorySettings.authorStoryRunnerOptions.hideLog &&
+              (!combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit ||
+                combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit > 0)
+            ) {
               this.content.push(this.addInput(text));
             }
 
@@ -966,16 +1035,14 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
           continue;
         }
 
-        const fontStyle = this.customization.styles.styleOutput.fontStyle;
-        const fontWeight = this.customization.styles.styleOutput.fontWeight;
-
         if (output.includes("***}")) {
-          this.customization.styles.styleOutput.fontStyle = "italic";
-          this.customization.styles.styleOutput.fontWeight = 600;
+          this.currentOutputStyles.fontStyle = "ib";
         } else if (output.includes("**}")) {
-          this.customization.styles.styleOutput.fontWeight = 600;
+          this.currentOutputStyles.fontStyle = "b";
         } else if (output.includes("*}")) {
-          this.customization.styles.styleOutput.fontStyle = "italic";
+          this.currentOutputStyles.fontStyle = "i";
+        } else {
+          this.currentOutputStyles.fontStyle = undefined;
         }
 
         // create output
@@ -986,9 +1053,6 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
 
         // Generates the text
         this.content.push(this.addOutput(output));
-
-        this.customization.styles.styleOutput.fontStyle = fontStyle;
-        this.customization.styles.styleOutput.fontWeight = fontWeight;
 
         // Removes the processed text.
         textLeft = textLeft.substring(0, lbPos) + textLeft.substring(rbPos + 1, textLeft.length);
@@ -1020,7 +1084,7 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
             if (tokens[0] instanceof TokenNum) {
               const n0 = tokens[0] as TokenNum;
 
-              return new TokenNum(this.customization.random.nextNumber() * n0.value + 1);
+              return new TokenNum(random!.nextNumber() * n0.value + 1);
             }
 
             return null;
@@ -1280,8 +1344,9 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
               line +
               "', color must be given in hex format using 3 or 6 digits. For example, f00 or 8800f0."
           );
-        } else if (color.length === 3) {
-          this.customization.styles.styleOutput.color = color.substring(0, 3);
+        } else {
+          this.currentOutputStyles.colorDark = color;
+          this.currentOutputStyles.colorLight = color;
         }
 
         // Deletes the line just processed.
@@ -1311,15 +1376,9 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
   private refreshInterpreter() {
     this.actions = [];
     this.content = [];
-    this.customization = {
-      discreteInlineLinks: this.defaultCustomization.discreteInlineLinks,
-      preserveOldOutput: this.defaultCustomization.preserveOldOutput,
-      random: this.defaultCustomization.random,
-      restartOptionDisabled: this.defaultCustomization.restartOptionDisabled,
-      restartOptionText: this.defaultCustomization.restartOptionText,
-      showErrors: this.defaultCustomization.showErrors,
-      styles: this.customization.styles,
-    };
+    this.currentOptionStyles = {};
+    this.currentOptionHighlightStyles = {};
+    this.currentOutputStyles = {};
     this.errorMessage = "";
     this.fork = "";
     this.log = [];
@@ -1329,6 +1388,32 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     this.variablesPrev = {};
 
     this.refreshInterpreterGuiStyles();
+  }
+
+  /** Initializes or resets the gui styles. */
+  private refreshInterpreterGuiStyles() {
+    const combinedProps = this.props as CombinedProps;
+
+    // Updates the background color of the runner.
+    const runner = document.getElementById(idRunnerWrapper);
+
+    if (runner) {
+      if (combinedProps.playerStorySettings.playerStoryRunnerStyles.background.type === "plain") {
+        runner.style["backgroundColor"] =
+          combinedProps.theme.localizedName === themes.light.localizedName
+            ? combinedProps.playerStorySettings.playerStoryRunnerStyles.background.colorLight ||
+              themes.light.theme.semanticColors.bodyBackground
+            : combinedProps.playerStorySettings.playerStoryRunnerStyles.background.colorDark ||
+              themes.dark.theme.semanticColors.bodyBackground;
+      } else if (combinedProps.authorStorySettings.authorStoryRunnerStyles.background.type === "plain") {
+        runner.style["backgroundColor"] =
+          combinedProps.theme.localizedName === themes.light.localizedName
+            ? combinedProps.authorStorySettings.authorStoryRunnerStyles.background.colorLight ||
+              themes.light.theme.semanticColors.bodyBackground
+            : combinedProps.authorStorySettings.authorStoryRunnerStyles.background.colorDark ||
+              themes.dark.theme.semanticColors.bodyBackground;
+      }
+    }
   }
 
   /** Called when a restart link is pressed or restart is invoked. */
@@ -1341,7 +1426,12 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
 
   /** Empties the log or updates it, depending on interpreter options. */
   private updateLog() {
-    if (!this.customization.preserveOldOutput) {
+    const combinedProps = this.props as CombinedProps;
+
+    if (
+      combinedProps.authorStorySettings.authorStoryRunnerOptions.hideLog ||
+      combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit === 0
+    ) {
       this.log = [];
     } else {
       this.log.push(...this.content);
