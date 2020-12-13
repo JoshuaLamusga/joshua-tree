@@ -36,6 +36,7 @@ import { ITextStyle } from "../common/redux/typedefs";
 import { dispatchSetTempStoryRunnerOptions } from "../common/redux/currentRunnerSettings.reducers";
 import { dispatchSetAuthorStoryRunnerStyles } from "../common/redux/authorStorySettings.reducers";
 import { Random } from "../common/random";
+import { fallbackElementType, getTextStyle } from "../common/styles/interpreterStyles";
 
 // TODO: localize strings in this file.
 
@@ -67,7 +68,7 @@ const mapStateToProps = (state: IRootState) => {
     authorStorySettings: state.authorStorySettings,
     currentStorySettings: state.currentRunnerSettings,
     playerStorySettings: state.playerStorySettings,
-    renderTrigger: state.viewEdit.storyRerenderToken, // Needed to re-render at will.
+    renderTrigger: state.viewEdit.storyRerenderToken, // Needed to re-render after output/input/logs change.
     theme: state.settings.theme,
   };
 };
@@ -158,7 +159,6 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
   }
 
   public shouldComponentUpdate(nextProps: Readonly<StoryInterpreterOwnProps>) {
-    const props = this.props as CombinedProps;
     const newProps = nextProps as CombinedProps;
 
     // Update random if necessary.
@@ -167,15 +167,9 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     }
 
     // Recompute cached versions of all components.
-    if (
-      props.authorStorySettings !== newProps.authorStorySettings ||
-      props.currentStorySettings !== newProps.currentStorySettings ||
-      props.theme !== newProps.theme
-    ) {
-      this.contentCached = this.content.map((node: InterpreterNode) => node(newProps));
-      this.logCached = this.log.map((node: InterpreterNode) => node(newProps));
-      this.optionsCached = this.options.map((node: InterpreterNode) => node(newProps));
-    }
+    this.contentCached = this.content.map((node: InterpreterNode) => node(newProps));
+    this.logCached = this.log.map((node: InterpreterNode) => node(newProps));
+    this.optionsCached = this.options.map((node: InterpreterNode) => node(newProps));
 
     return true;
   }
@@ -185,11 +179,12 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     return (props: CombinedProps) => (
       <p
         key={`${idRunnerInputElement}-${uniqueKeyCounter++}`}
-        style={this.getTextStyle(
-          props,
+        style={getTextStyle(
+          props.theme,
           !props.debugging ? props.playerStorySettings.playerStoryInputStyles : {},
           {}, // can't pass styles
-          props.authorStorySettings.authorStoryInputStyles
+          props.authorStorySettings.authorStoryInputStyles,
+          fallbackElementType.input
         )}
       >
         {text}
@@ -223,18 +218,20 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
           };
 
     return (props: CombinedProps) => {
-      const styleOptions = this.getTextStyle(
-        props,
+      const styleOptions = getTextStyle(
+        props.theme,
         !props.debugging ? props.playerStorySettings.playerStoryOptionStyles : {},
         style,
-        props.authorStorySettings.authorStoryOptionStyles
+        props.authorStorySettings.authorStoryOptionStyles,
+        fallbackElementType.option
       );
 
-      const styleOptionsHighlight = this.getTextStyle(
-        props,
+      const styleOptionsHighlight = getTextStyle(
+        props.theme,
         !props.debugging ? props.playerStorySettings.playerStoryOptionHighlightStyles : {},
         style,
-        props.authorStorySettings.authorStoryOptionHighlightStyles
+        props.authorStorySettings.authorStoryOptionHighlightStyles,
+        fallbackElementType.optionHighlight
       );
 
       return (
@@ -245,7 +242,7 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
             root: {
               ...(styleOptions as object),
               display: "block",
-              height: "32px",
+              fontSize: "16px",
             },
             rootFocused: { ...(styleOptionsHighlight as object) },
             rootHovered: { ...(styleOptionsHighlight as object) },
@@ -261,11 +258,12 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     const style = Object.assign({}, this.currentOutputStyles);
 
     return (props: CombinedProps) => {
-      const styleOutput = this.getTextStyle(
-        props,
-        !props.debugging ? props.playerStorySettings.playerStoryOptionStyles : {},
+      const styleOutput = getTextStyle(
+        props.theme,
+        !props.debugging ? props.playerStorySettings.playerStoryOutputStyles : {},
         style,
-        props.authorStorySettings.authorStoryOptionStyles
+        props.authorStorySettings.authorStoryOutputStyles,
+        fallbackElementType.output
       );
 
       return (
@@ -554,79 +552,6 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     this.loadFork();
   }
 
-  /**
-   * Applies text styles to determine font family, size, bold/italic/underline, and color. Players can set their own
-   * style overrides (playerStyle). The author can set styles within the game that deviate from the normal styling
-   * (storyStyle), and set a global default style for the story (authorStyle). When editing a story, playerStyle should
-   * be left empty. PlayerStyle overrides storyStyle, which overrides authorStyle. Overrides work per attribute, and
-   * fall down to the next style if not met, or a natural default if none are met.
-   *
-   * Light colors are used in lightMode and dark colors in darkMode, as defined by the theming.
-   *
-   * @param playerStyle Styles that a player has set to override all styles in stories they read, if set.
-   * @param storyStyle Specific one-off styling within the story.
-   * @param authorStyle Styles that an author has set as the default text styling.
-   */
-  private getTextStyle = (
-    props: CombinedProps,
-    playerStyle: ITextStyle,
-    storyStyle: ITextStyle,
-    authorStyle: ITextStyle
-  ): React.CSSProperties => {
-    const color =
-      props.theme.localizedName === themes.light.localizedName
-        ? playerStyle.colorLight ||
-          storyStyle.colorLight ||
-          authorStyle.colorLight ||
-          themes.light.theme.semanticColors.bodyText
-        : playerStyle.colorDark ||
-          storyStyle.colorDark ||
-          authorStyle.colorDark ||
-          themes.dark.theme.semanticColors.bodyText;
-
-    const fontFamily = playerStyle.font || storyStyle.font || authorStyle.font || fallbackFontStack;
-
-    const fontSize =
-      `${playerStyle.fontSize} rem` || `${storyStyle.fontSize} rem` || `${authorStyle.fontSize} rem` || "1 rem";
-
-    let fontStyle: "italic" | "normal" = "normal";
-    let fontWeight: "bold" | "normal" = "normal";
-    let textDecoration: "underline" | "inherit" = "inherit";
-
-    if (playerStyle.fontStyle) {
-      fontStyle = playerStyle.fontStyle.includes("i") ? "italic" : "normal";
-    } else if (storyStyle.fontStyle) {
-      fontStyle = storyStyle.fontStyle.includes("i") ? "italic" : "normal";
-    } else if (authorStyle.fontStyle) {
-      fontStyle = authorStyle.fontStyle.includes("i") ? "italic" : "normal";
-    }
-
-    if (playerStyle.fontStyle) {
-      fontWeight = playerStyle.fontStyle.includes("b") ? "bold" : "normal";
-    } else if (storyStyle.fontStyle) {
-      fontWeight = storyStyle.fontStyle.includes("b") ? "bold" : "normal";
-    } else if (authorStyle.fontStyle) {
-      fontWeight = authorStyle.fontStyle.includes("b") ? "bold" : "normal";
-    }
-
-    if (playerStyle.fontStyle) {
-      textDecoration = playerStyle.fontStyle.includes("u") ? "underline" : "inherit";
-    } else if (storyStyle.fontStyle) {
-      textDecoration = storyStyle.fontStyle.includes("u") ? "underline" : "inherit";
-    } else if (authorStyle.fontStyle) {
-      textDecoration = authorStyle.fontStyle.includes("u") ? "underline" : "inherit";
-    }
-
-    return {
-      color,
-      fontFamily,
-      fontSize,
-      fontStyle,
-      fontWeight,
-      textDecoration,
-    };
-  };
-
   /** Escapes the given text for all supported escape sequences. */
   private escapeText(text: string, matchBraces: boolean) {
     if (matchBraces) {
@@ -661,15 +586,6 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
       return str;
     });
   }
-
-  /** Renders the content. */
-  private onRenderContent = (item?: InterpreterNode): JSX.Element => {
-    if (!item) {
-      return <></>;
-    }
-
-    return item(this.props as CombinedProps);
-  };
 
   /** Handles submission of text in the textbox. */
   private onTextboxKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
