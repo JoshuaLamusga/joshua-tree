@@ -174,22 +174,31 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     return true;
   }
 
-  /** Creates and returns a text element styled to represent the player's input. */
-  public addInput(text: string) {
-    return (props: CombinedProps) => (
-      <p
-        key={`${idRunnerInputElement}-${uniqueKeyCounter++}`}
-        style={getTextStyle(
-          props.theme,
-          !props.debugging ? props.playerStorySettings.playerStoryInputStyles : {},
-          {}, // can't pass styles
-          props.authorStorySettings.authorStoryInputStyles,
-          fallbackElementType.input
-        )}
-      >
-        {text}
-      </p>
-    );
+  /**
+   * Creates and returns a text element styled to represent the player's input. It's prefixed according to whether it
+   * was created from a hyperlink or by typing.
+   */
+  public addInput(text: string, fromOption?: true) {
+    return (props: CombinedProps) => {
+      const prefix = fromOption
+        ? props.authorStorySettings.authorStoryStrings.inputOptionPrefixText || "• "
+        : props.authorStorySettings.authorStoryStrings.inputTextboxPrefixText || "→ ";
+
+      return (
+        <p
+          key={`${idRunnerInputElement}-${uniqueKeyCounter++}`}
+          style={getTextStyle(
+            props.theme,
+            !props.debugging ? props.playerStorySettings.playerStoryInputStyles : {},
+            {}, // can't pass styles
+            props.authorStorySettings.authorStoryInputStyles,
+            fallbackElementType.input
+          )}
+        >
+          {prefix + text}
+        </p>
+      );
+    };
   }
 
   /**
@@ -210,7 +219,7 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
               (!combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit ||
                 combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit > 0)
             ) {
-              this.content.push(this.addInput(text));
+              this.content.push(this.addInput(text, true));
             }
 
             // Go to the fork (moves old content to logs as a side effect).
