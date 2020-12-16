@@ -1,15 +1,15 @@
 import { IRootState } from "../../store";
 import { ILocalizedStringSets } from "../localization/Localization";
-import { ISupportedThemes, themes } from "../themes";
+import { Themes, themes } from "../themes";
 
 const persistStateVersion = 1;
 const persistStateIdentifier = "JoshuaTree";
 
 /** The object states to persist to local storage. */
 export interface IPersistentState {
-  themeName: keyof ISupportedThemes;
   localeId: keyof ILocalizedStringSets;
   saveFormatVersion: number;
+  theme: keyof typeof themes;
 }
 
 /**
@@ -21,18 +21,20 @@ export const saveToLocalStorage = (state: IRootState) => {
     return;
   }
 
-  let themeName = "";
-  Object.keys(themes).forEach((key: string) => {
-    const candidateThemeName = themes[key as keyof ISupportedThemes].localizedName;
+  let theme = Themes.DefaultLight;
+  const themeKeys = (Object.keys(themes) as unknown) as (keyof typeof themes)[];
+
+  themeKeys.forEach((key: Themes) => {
+    const candidateThemeName = themes[key].localizedName;
     if (candidateThemeName === state.settings.theme.localizedName) {
-      themeName = key;
+      theme = key;
     }
   });
 
   const newState: IPersistentState = {
     localeId: state.settings.locale,
     saveFormatVersion: persistStateVersion,
-    themeName: themeName as keyof ISupportedThemes,
+    theme: theme,
   };
 
   localStorage.setItem(persistStateIdentifier, JSON.stringify(newState));
@@ -59,7 +61,7 @@ export const loadFromLocalStorage = (): IPersistentState | null => {
   }
 
   // All keys must exist before the state can be considered complete.
-  if (!returnedState.localeId || !returnedState.themeName || !returnedState.saveFormatVersion) {
+  if (!returnedState.localeId || !returnedState.theme || !returnedState.saveFormatVersion) {
     return null;
   }
 

@@ -124,6 +124,12 @@ export interface IAuthorRunnerOptions {
 export interface IAuthorRunnerStrings {
   /** Overrides the text for the default restart link. Defaults to "restart". */
   restartLinkText?: string;
+
+  /** Overrides the text prefixed to logged player input when they click an option. Defaults to •. */
+  inputOptionPrefixText?: string;
+
+  /** Overrides the text prefixed to logged player input when they submit text. Defaults to →. */
+  inputTextboxPrefixText?: string;
 }
 
 /** Options the player chooses that affect the behavior of the runner. */

@@ -67,8 +67,14 @@ export interface ILocalizedStrings {
   MenuFileNew: string;
   MenuFileOpen: string;
   MenuFileSave: string;
-  ThemeDark: string;
-  ThemeLight: string;
+  ThemeContrastDark: string;
+  ThemeContrastLight: string;
+  ThemeDefaultDark: string;
+  ThemeDefaultLight: string;
+  ThemeDeepSea: string;
+  ThemeEarthAndSky: string;
+  ThemeLucky: string;
+  ThemeMidnightEarth: string;
   ThemeDropdownText: (themeName: string) => string;
   TipLanguage: string;
   TipNavigateCommandBar: string;

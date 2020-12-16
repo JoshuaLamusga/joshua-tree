@@ -18,10 +18,6 @@ export type RunnerEditorOwnProps = {};
 type CombinedProps = RunnerEditorOwnProps & ReturnType<typeof mapStateToProps>;
 
 export class RunnerEditorViewC extends React.Component<RunnerEditorOwnProps> {
-  public componentDidMount() {
-    document.body.style.margin = "0px";
-  }
-
   public render() {
     return (
       <>

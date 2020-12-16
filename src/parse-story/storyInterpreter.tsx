@@ -16,13 +16,8 @@ import { IRootState } from "../store";
 import { connect } from "react-redux";
 import { dispatchRerenderStory } from "../common/redux/viewedit.reducers";
 import { Dispatch } from "redux";
-import {
-  runnerInputTextboxStyle,
-  runnerWrapperStyle,
-  runnerOutputWrapperStyle,
-  fallbackFontStack,
-} from "../common/styles/controlStyles";
-import { themes } from "../common/themes";
+import { runnerWrapperStyle, runnerOutputWrapperStyle, fallbackFontStack } from "../common/styles/controlStyles";
+import { ThemeTypes } from "../common/themes";
 import { ActionButton } from "office-ui-fabric-react/lib/components/Button/ActionButton/ActionButton";
 import { MessageBarType } from "office-ui-fabric-react/lib/components/MessageBar/MessageBar.types";
 import { MessageBar } from "office-ui-fabric-react/lib/components/MessageBar/MessageBar";
@@ -37,6 +32,8 @@ import { dispatchSetTempStoryRunnerOptions } from "../common/redux/currentRunner
 import { dispatchSetAuthorStoryRunnerStyles } from "../common/redux/authorStorySettings.reducers";
 import { Random } from "../common/random";
 import { fallbackElementType, getTextStyle } from "../common/styles/interpreterStyles";
+import { TextField } from "office-ui-fabric-react/lib/components/TextField/TextField";
+import { Scrollbars } from "react-custom-scrollbars";
 
 // TODO: localize strings in this file.
 
@@ -68,7 +65,7 @@ const mapStateToProps = (state: IRootState) => {
     authorStorySettings: state.authorStorySettings,
     currentStorySettings: state.currentRunnerSettings,
     playerStorySettings: state.playerStorySettings,
-    renderTrigger: state.viewEdit.storyRerenderToken, // Needed to re-render after output/input/logs change.
+    renderTrigger: state.viewEdit.storyRerenderToken, // Needed to re-render after output/input/options change.
     theme: state.settings.theme,
   };
 };
@@ -174,29 +171,38 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     return true;
   }
 
-  /** Creates and returns a text element styled to represent the player's input. */
-  public addInput(text: string) {
-    return (props: CombinedProps) => (
-      <p
-        key={`${idRunnerInputElement}-${uniqueKeyCounter++}`}
-        style={getTextStyle(
-          props.theme,
-          !props.debugging ? props.playerStorySettings.playerStoryInputStyles : {},
-          {}, // can't pass styles
-          props.authorStorySettings.authorStoryInputStyles,
-          fallbackElementType.input
-        )}
-      >
-        {text}
-      </p>
-    );
+  /**
+   * Creates and returns a text element styled to represent the player's input. It's prefixed according to whether it
+   * was created from a hyperlink or by typing.
+   */
+  public addInput(text: string, fromOption?: true) {
+    return (props: CombinedProps) => {
+      const prefix = fromOption
+        ? props.authorStorySettings.authorStoryStrings.inputOptionPrefixText || "• "
+        : props.authorStorySettings.authorStoryStrings.inputTextboxPrefixText || "→ ";
+
+      return (
+        <p
+          key={`${idRunnerInputElement}-${uniqueKeyCounter++}`}
+          style={getTextStyle(
+            props.theme,
+            !props.debugging ? props.playerStorySettings.playerStoryInputStyles : {},
+            {}, // can't pass styles
+            props.authorStorySettings.authorStoryInputStyles,
+            fallbackElementType.input
+          )}
+        >
+          {prefix + text}
+        </p>
+      );
+    };
   }
 
   /**
-   * Creates and returns a hyperlink styled as an option. For forkNameOrAction, if a string is
-   * provided, it indicates the fork to go to. Passing a function can execute custom code instead.
+   * Creates and returns a hyperlink styled as an option. For forkNameOrAction, if a string is provided, it indicates
+   * the fork to go to. Passing a function can execute custom code instead.
    */
-  public addOption(text: string, forkNameOrAction: string | (() => void), key?: string) {
+  public addOption(text: string, forkNameOrAction: string | (() => void), key?: string, inline?: true) {
     const style = Object.assign({}, this.currentOptionStyles);
 
     const combinedProps = this.props as CombinedProps;
@@ -210,7 +216,7 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
               (!combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit ||
                 combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit > 0)
             ) {
-              this.content.push(this.addInput(text));
+              this.content.push(this.addInput(text, true));
             }
 
             // Go to the fork (moves old content to logs as a side effect).
@@ -241,11 +247,20 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
           styles={{
             root: {
               ...(styleOptions as object),
-              display: "block",
+              border: "none",
+              display: inline ? "inline" : "block",
               fontSize: "16px",
+              height: "unset",
+              marginBottom: inline ? "0px" : "4px",
+              marginTop: inline ? "0px" : "4px",
+              paddingLeft: "0px",
+              marginLeft: "0px",
             },
             rootFocused: { ...(styleOptionsHighlight as object) },
             rootHovered: { ...(styleOptionsHighlight as object) },
+            label: {
+              marginLeft: "0px",
+            },
           }}
           text={text}
         />
@@ -471,7 +486,7 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
       <div key={idRunnerContent} id={idRunnerContent}>
         {this.contentCached}
       </div>,
-      <div key={idRunnerOptions} id={idRunnerOptions}>
+      <div key={idRunnerOptions} id={idRunnerOptions} style={{ marginTop: "24px" }}>
         {this.optionsCached}
         {restartOption}
       </div>,
@@ -483,25 +498,24 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
       ) : undefined;
 
     const textbox = !this.textboxHidden ? (
-      <input
+      <TextField
         autoComplete="nah" // Required for browsers to not autocomplete with address.
         name="textfield" // Required for browsers to not autocomplete with prior entries.
         id={idRunnerInputfield}
         key={idRunnerInputfield}
         onKeyPress={this.onTextboxKeyPress}
-        style={runnerInputTextboxStyle((this.props as CombinedProps).theme.theme)}
         type="text"
       />
     ) : undefined;
 
     return (
-      <>
-        <div className={runnerWrapperStyle}>
+      <div className={runnerWrapperStyle}>
+        <Scrollbars>
           <div className={runnerOutputWrapperStyle}>{allOutput}</div>
-          {errorMessage}
-          {textbox}
-        </div>
-      </>
+        </Scrollbars>
+        {errorMessage}
+        {textbox}
+      </div>
     );
   }
 
@@ -722,13 +736,12 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
 
         if (textboxText === "") {
           this.actions.push((text: string) => {
-            text = text.toLowerCase().trim();
             let containsWord = false;
 
             // Ensures the text contains at least one word.
             for (let i = 0; i < queryWords.length; i++) {
               const matchWordRegex = new RegExp("\\b" + queryWords[i] + "\\b");
-              if (matchWordRegex.test(text)) {
+              if (matchWordRegex.test(text.toLowerCase().trim())) {
                 containsWord = true;
               }
             }
@@ -755,14 +768,13 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
             this.refreshInterpreterGui();
           });
         } else {
-          textboxText = textboxText.toLowerCase().trim();
           let containsWord = false;
 
           // Ensures the text contains at least one word.
           for (let i = 0; i < queryWords.length; i++) {
             const matchWordRegex = new RegExp("\\b" + queryWords[i] + "\\b");
 
-            if (matchWordRegex.test(textboxText)) {
+            if (matchWordRegex.test(textboxText.toLowerCase().trim())) {
               containsWord = true;
             }
           }
@@ -781,9 +793,9 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
       } else if (words[1].endsWith("is")) {
         if (textboxText === "") {
           this.actions.push((text: string) => {
-            text = text.toLowerCase().trim();
+            const cleanedText = text.toLowerCase().trim();
 
-            if ((words[1] === "is" && text === query) || (words[1] === "!is" && text !== query)) {
+            if ((words[1] === "is" && cleanedText === query) || (words[1] === "!is" && cleanedText !== query)) {
               if (
                 !combinedProps.authorStorySettings.authorStoryRunnerOptions.hideLog &&
                 (!combinedProps.authorStorySettings.authorStoryRunnerOptions.logLimit ||
@@ -821,12 +833,10 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
 
         if (textboxText === "") {
           this.actions.push((text: string) => {
-            text = text.toLowerCase().trim();
-
             // Ensures the text contains each word.
             for (let i = 0; i < queryWords.length; i++) {
               const matchWordRegex = new RegExp("\\b" + queryWords[i] + "\\b");
-              const matches = matchWordRegex.test(text);
+              const matches = matchWordRegex.test(text.toLowerCase().trim());
 
               if ((words[1] === "has" && !matches) || (words[1] === "!has" && matches)) {
                 return;
@@ -985,7 +995,7 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
             "Interpreter: the fork in the option '" + displayName + "@" + forkName + "' doesn't exist."
           );
         } else {
-          this.options.push(this.addOption(displayName, forkName));
+          this.content.push(this.addOption(displayName, forkName, undefined, true));
         }
 
         // Deletes the line just processed.
@@ -1400,18 +1410,18 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     if (runner) {
       if (combinedProps.playerStorySettings.playerStoryRunnerStyles.background.type === "plain") {
         runner.style["backgroundColor"] =
-          combinedProps.theme.localizedName === themes.light.localizedName
+          combinedProps.theme.themeType === ThemeTypes.Light
             ? combinedProps.playerStorySettings.playerStoryRunnerStyles.background.colorLight ||
-              themes.light.theme.semanticColors.bodyBackground
+              combinedProps.theme.theme.semanticColors.bodyBackground
             : combinedProps.playerStorySettings.playerStoryRunnerStyles.background.colorDark ||
-              themes.dark.theme.semanticColors.bodyBackground;
+              combinedProps.theme.theme.semanticColors.bodyBackground;
       } else if (combinedProps.authorStorySettings.authorStoryRunnerStyles.background.type === "plain") {
         runner.style["backgroundColor"] =
-          combinedProps.theme.localizedName === themes.light.localizedName
+          combinedProps.theme.themeType === ThemeTypes.Light
             ? combinedProps.authorStorySettings.authorStoryRunnerStyles.background.colorLight ||
-              themes.light.theme.semanticColors.bodyBackground
+              combinedProps.theme.theme.semanticColors.bodyBackground
             : combinedProps.authorStorySettings.authorStoryRunnerStyles.background.colorDark ||
-              themes.dark.theme.semanticColors.bodyBackground;
+              combinedProps.theme.theme.semanticColors.bodyBackground;
       }
     }
   }
