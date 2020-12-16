@@ -1,6 +1,5 @@
-import { CSSProperties } from "react";
 import { IButtonStyles } from "office-ui-fabric-react/lib/components/Button/Button.types";
-import { ITheme, mergeStyles, IStyle } from "office-ui-fabric-react/lib/Styling";
+import { IStyle, ITheme, mergeStyles } from "office-ui-fabric-react/lib/Styling";
 import { IDropdownStyles } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
 import { ICommandBarStyles } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar.types";
 import { IIconStyles } from "office-ui-fabric-react/lib/components/Icon/Icon.types";
@@ -19,7 +18,7 @@ export const commandBarDropdownButtonStyle = (): IButtonStyles => {
 export const commandBarDropdownSeparatorStyle = (theme: ITheme): Partial<IDropdownStyles> => {
   return {
     root: {
-      borderColor: theme.semanticColors.bodyText,
+      borderColor: theme.semanticColors.menuDivider,
       borderRightStyle: "solid",
       borderWidth: "1px",
     },
@@ -65,7 +64,7 @@ export const commandBarItemStyle = (theme: ITheme, itemsOnRight?: boolean): stri
     return mergeStyles(theme.fonts.large, {
       paddingLeft: "12px",
       paddingRight: "12px",
-      borderColor: theme.semanticColors.bodyText,
+      borderColor: theme.semanticColors.menuDivider,
       borderRightStyle: "solid",
       borderWidth: "1px",
     });
@@ -98,15 +97,15 @@ export const commandBarStyle: ICommandBarStyles = {
 };
 
 /** Returns a style for the editor text area component. */
-export const editorTextAreaStyle = (theme: ITheme): object => {
+export const editorTextAreaStyle = (theme: ITheme): React.CSSProperties => {
   return {
-    color: theme.semanticColors.bodyText,
     backgroundColor: theme.semanticColors.bodyStandoutBackground,
-    borderColor: theme.semanticColors.bodyText,
     borderStyle: "solid",
     borderWidth: "1px",
+    boxSizing: "border-box",
+    color: theme.semanticColors.bodyText,
     height: "90vh",
-    padding: 0,
+    padding: "0.25vh 0.25vw 0.25vh 0.25vw",
     resize: "none",
     width: "100%",
   };
@@ -128,81 +127,35 @@ export const iconSpaceBeforeTextStyle: IIconStyles = {
 };
 
 /** Sets up the div containing the editor textarea. */
-export const mainViewEditorStyle = mergeStyles({ height: "90vh", margin: "0 4px 0 0", width: "50vw" });
+export const mainViewEditorStyle = mergeStyles({
+  boxSizing: "border-box",
+  height: "90vh",
+  margin: "0 0.25vw 0 0",
+  width: "49.75vw",
+});
 
 /** Styles the runner to give it a border and make overflowing generated content scroll. */
 export const mainViewRunnerStyle = (theme: ITheme): IStyle => {
   return {
-    borderColor: theme.semanticColors.bodyText,
+    borderColor: theme.semanticColors.menuDivider,
     borderStyle: "solid",
     borderWidth: "1px",
-    margin: "0 0 0 4px",
-    overflowY: "scroll",
-    width: "50vw",
+    boxSizing: "border-box",
+    height: "90vh",
+    margin: "0 0 0 0.25vw",
+    width: "49.75vw",
   };
 };
 
 /** Sets up the div containing the editor and runner so they stretch horizontally to full size. */
-export const mainViewWrapperStyle = mergeStyles({ display: "flex", alignItems: "stretch" });
-
-/** Styles the input textbox of the runner. */
-export const runnerInputTextboxStyle = (theme: ITheme): CSSProperties => {
-  return {
-    backgroundColor: theme.semanticColors.bodyBackground,
-    color: theme.semanticColors.bodyText,
-    alignSelf: "stretch",
-    flexShrink: 1,
-    fontSize: "16px",
-    height: "32px",
-  };
-};
+export const mainViewWrapperStyle = mergeStyles({ display: "flex", alignItems: "stretch", margin: "4px" });
 
 /** Styles the innermost div that contains all generated content in the runner. */
-export const runnerOutputWrapperStyle = mergeStyles({ flexGrow: 1, margin: "4px" });
+export const runnerOutputWrapperStyle = mergeStyles({
+  paddingLeft: "0.5vw",
+  paddingRight: "0.5vw",
+  paddingTop: "0.5vw",
+});
 
 /** Styles the div containing all controls associated to the runner so they display properly. */
 export const runnerWrapperStyle = mergeStyles({ display: "flex", flexDirection: "column", height: "90vh" });
-
-/** The default style of echoed player input reminder text, which changes at runtime. */
-export const runnerDefaultInputStyle = (theme: ITheme) => {
-  return {
-    color: theme.semanticColors.warningText,
-    fontFamily: fallbackFontStack,
-    fontSize: "16px",
-    fontWeight: 400,
-  };
-};
-
-/** The default style of options when not highlighted in the runner, which changes at runtime. */
-export const runnerDefaultOptionsStyle = (theme: ITheme) => {
-  return {
-    color: theme.semanticColors.primaryButtonText,
-    fontFamily: fallbackFontStack,
-    fontSize: "16px",
-    fontWeight: 400,
-  };
-};
-
-/** The default style of options when highlighted in the runner, which changes at runtime. */
-export const runnerDefaultOptionsHighlightStyle = (theme: ITheme) => {
-  return {
-    color: theme.semanticColors.primaryButtonTextHovered,
-  };
-};
-
-/** The default style of output in the runner, which changes at runtime. */
-export const runnerDefaultOutputStyle = (theme: ITheme) => {
-  return {
-    color: theme.semanticColors.bodyText,
-    fontFamily: fallbackFontStack,
-    fontSize: theme.fonts.large.fontSize,
-    fontWeight: 400,
-  };
-};
-
-/** The default style of the runner background, which changes at runtime. */
-export const runnerDefaultWrapperStyle = (theme: ITheme) => {
-  return {
-    backgroundColor: theme.semanticColors.bodyStandoutBackground,
-  };
-};

@@ -151,8 +151,8 @@ export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
         (this.props as CombinedProps).setLocale(state.localeId);
       }
 
-      if (themes[state.themeName] !== null) {
-        (this.props as CombinedProps).setTheme(themes[state.themeName]);
+      if (themes[state.theme] !== null) {
+        (this.props as CombinedProps).setTheme(themes[state.theme]);
       }
     }
   };
@@ -218,7 +218,7 @@ export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
 
     // Populates the available themes.
     Object.keys(themes).forEach((themeKey: string) => {
-      const theme = themes[themeKey as keyof typeof themes];
+      const theme = themes[(themeKey as unknown) as keyof typeof themes];
 
       options.push({
         data: theme,

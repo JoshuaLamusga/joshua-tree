@@ -1,18 +1,13 @@
 import { combineReducers, Dispatch } from "redux";
 import { getSupportedLocale, ILocalizedStringSets } from "../localization/Localization";
-import { ISupportedTheme, themes } from "../themes";
+import { ISupportedTheme, Themes, themes } from "../themes";
 import { actions, setLocale, setTheme } from "./settings.actions";
 import { loadTheme } from "office-ui-fabric-react/lib/Styling";
 
 /** The user's preferred theme. An empty string here should mean the default theme is applied. */
-const theme = (
-  state: ISupportedTheme = {
-    localizedName: themes.light.localizedName,
-    theme: loadTheme(themes.light.theme),
-  },
-  action: ReturnType<typeof setTheme>
-) => {
-  if (action.type === actions.setTheme) {
+const theme = (state: ISupportedTheme = themes[Themes.DefaultLight], action: ReturnType<typeof setTheme>) => {
+  if (action.type === actions.setTheme && state.theme !== action.theme.theme) {
+    loadTheme(action.theme.theme);
     return action.theme;
   }
 
@@ -22,7 +17,7 @@ const theme = (
 /** Sets the full theme based on a partial theme and injects it to update components. */
 export const dispatchSetTheme = (dispatch: Dispatch) => async (supportedTheme: ISupportedTheme) => {
   document.body.style.backgroundColor = supportedTheme.theme.semanticColors.bodyBackground;
-  dispatch(setTheme({ localizedName: supportedTheme.localizedName, theme: supportedTheme.theme }));
+  dispatch(setTheme(supportedTheme));
 };
 
 /** The user's preferred language. */

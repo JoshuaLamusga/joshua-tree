@@ -1,5 +1,5 @@
 import { ITextStyle } from "../redux/typedefs";
-import { ISupportedTheme, themes } from "../themes";
+import { ISupportedTheme, ThemeTypes } from "../themes";
 import { fallbackFontStack } from "./controlStyles";
 
 /** Declaring the element type allows the interpreter to select the right fallback styles. */
@@ -14,43 +14,41 @@ export enum fallbackElementType {
  * The inherent styles used for different elements, if no other style is applied.
  * Note that the redundant casting below is necessary as of TS 4.0.3 due to type resolution problems.
  */
-const fallbackStyles = {
-  [fallbackElementType.input]: {
-    colorLight: themes.light.theme.semanticColors.errorText,
-    colorDark: themes.dark.theme.semanticColors.errorText,
-    fontFamily: fallbackFontStack,
-    fontSize: "1.2 rem",
-    fontStyle: "normal" as "normal",
-    fontWeight: "normal" as "normal",
-    textDecoration: "inherit" as "inherit",
-  },
-  [fallbackElementType.option]: {
-    colorLight: themes.light.theme.semanticColors.link,
-    colorDark: themes.dark.theme.semanticColors.link,
-    fontFamily: fallbackFontStack,
-    fontSize: "1.2 rem",
-    fontStyle: "normal" as "normal",
-    fontWeight: "normal" as "normal",
-    textDecoration: "underline" as "underline",
-  },
-  [fallbackElementType.optionHighlight]: {
-    colorLight: themes.light.theme.semanticColors.linkHovered,
-    colorDark: themes.dark.theme.semanticColors.linkHovered,
-    fontFamily: fallbackFontStack,
-    fontSize: "1.2 rem",
-    fontStyle: "normal" as "normal",
-    fontWeight: "normal" as "normal",
-    textDecoration: "underline" as "underline",
-  },
-  [fallbackElementType.output]: {
-    colorLight: themes.light.theme.semanticColors.bodyText,
-    colorDark: themes.dark.theme.semanticColors.bodyText,
-    fontFamily: fallbackFontStack,
-    fontSize: "1.2 rem",
-    fontStyle: "normal" as "normal",
-    fontWeight: "normal" as "normal",
-    textDecoration: "inherit" as "inherit",
-  },
+const fallbackStyles = (theme: ISupportedTheme) => {
+  return {
+    [fallbackElementType.input]: {
+      color: theme.theme.semanticColors.errorText,
+      fontFamily: fallbackFontStack,
+      fontSize: "1.2 rem",
+      fontStyle: "normal" as "normal",
+      fontWeight: "normal" as "normal",
+      textDecoration: "inherit" as "inherit",
+    },
+    [fallbackElementType.option]: {
+      color: theme.theme.palette.blue,
+      fontFamily: fallbackFontStack,
+      fontSize: "1.2 rem",
+      fontStyle: "normal" as "normal",
+      fontWeight: "normal" as "normal",
+      textDecoration: "underline" as "underline",
+    },
+    [fallbackElementType.optionHighlight]: {
+      color: theme.theme.palette.blueDark,
+      fontFamily: fallbackFontStack,
+      fontSize: "1.2 rem",
+      fontStyle: "normal" as "normal",
+      fontWeight: "normal" as "normal",
+      textDecoration: "underline" as "underline",
+    },
+    [fallbackElementType.output]: {
+      color: theme.theme.semanticColors.bodyText,
+      fontFamily: fallbackFontStack,
+      fontSize: "1.2 rem",
+      fontStyle: "normal" as "normal",
+      fontWeight: "normal" as "normal",
+      textDecoration: "inherit" as "inherit",
+    },
+  };
 };
 
 /**
@@ -73,12 +71,12 @@ export const getTextStyle = (
   authorStyle: ITextStyle,
   fallback: fallbackElementType
 ): React.CSSProperties => {
-  const fallbackStyle = fallbackStyles[fallback];
+  const fallbackStyle = fallbackStyles(theme)[fallback];
 
   const color =
-    theme.localizedName === themes.light.localizedName
-      ? playerStyle.colorLight || storyStyle.colorLight || authorStyle.colorLight || fallbackStyle.colorLight
-      : playerStyle.colorDark || storyStyle.colorDark || authorStyle.colorDark || fallbackStyle.colorDark;
+    theme.themeType === ThemeTypes.Light
+      ? playerStyle.colorLight || storyStyle.colorLight || authorStyle.colorLight || fallbackStyle.color
+      : playerStyle.colorDark || storyStyle.colorDark || authorStyle.colorDark || fallbackStyle.color;
 
   const fontFamily = playerStyle.font || storyStyle.font || authorStyle.font || fallbackStyle.fontFamily;
   const fontSize = playerStyle.fontSize || storyStyle.fontSize || authorStyle.fontSize || fallbackStyle.fontSize;
@@ -118,5 +116,6 @@ export const getTextStyle = (
     fontStyle,
     fontWeight,
     textDecoration,
+    whiteSpace: "pre-wrap", // respects newlines and multiple whitespace.
   };
 };
