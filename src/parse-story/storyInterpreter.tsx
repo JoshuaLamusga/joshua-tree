@@ -33,7 +33,7 @@ import { dispatchSetAuthorStoryRunnerStyles } from "../common/redux/authorStoryS
 import { Random } from "../common/random";
 import { fallbackElementType, getTextStyle } from "../common/styles/interpreterStyles";
 import { TextField } from "office-ui-fabric-react/lib/components/TextField/TextField";
-import { Scrollbars } from "react-custom-scrollbars";
+import { getStrings } from "../common/localization/Localization";
 
 // TODO: localize strings in this file.
 
@@ -66,6 +66,7 @@ const mapStateToProps = (state: IRootState) => {
     currentStorySettings: state.currentRunnerSettings,
     playerStorySettings: state.playerStorySettings,
     renderTrigger: state.viewEdit.storyRerenderToken, // Needed to re-render after output/input/options change.
+    strings: getStrings(state.settings.locale),
     theme: state.settings.theme,
   };
 };
@@ -143,8 +144,10 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
 
   /** The restart link for when a page is empty or the link is forcibly shown. */
   private getRestartLink = () => {
+    const combinedProps = this.props as CombinedProps;
+
     return this.addOption(
-      (this.props as CombinedProps).authorStorySettings.authorStoryStrings.restartLinkText || "restart", // TODO: localize
+      combinedProps.authorStorySettings.authorStoryStrings.restartLinkText || combinedProps.strings.RunnerRestart,
       this.restartGame,
       idRunnerOptionRestart
     );
@@ -510,9 +513,7 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
 
     return (
       <div className={runnerWrapperStyle}>
-        <Scrollbars>
-          <div className={runnerOutputWrapperStyle}>{allOutput}</div>
-        </Scrollbars>
+        <div className={runnerOutputWrapperStyle}>{allOutput}</div>
         {errorMessage}
         {textbox}
       </div>

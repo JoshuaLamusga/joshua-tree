@@ -152,6 +152,8 @@ export const mainViewWrapperStyle = mergeStyles({ display: "flex", alignItems: "
 
 /** Styles the innermost div that contains all generated content in the runner. */
 export const runnerOutputWrapperStyle = mergeStyles({
+  flexGrow: 1,
+  overflowY: "auto",
   paddingLeft: "0.5vw",
   paddingRight: "0.5vw",
   paddingTop: "0.5vw",

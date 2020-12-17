@@ -62,11 +62,13 @@ export interface ILocalizedStringSets {
 export interface ILocalizedStrings {
   ApplicationName: string;
   ApplicationNameAndVersion: (appName: string, appVersion: string) => string;
+  EditorPlay: string;
   LanguageCodeName: string;
   MenuFile: string;
   MenuFileNew: string;
   MenuFileOpen: string;
   MenuFileSave: string;
+  RunnerRestart: string;
   ThemeContrastDark: string;
   ThemeContrastLight: string;
   ThemeDefaultDark: string;
