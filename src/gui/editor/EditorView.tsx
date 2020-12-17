@@ -6,10 +6,12 @@ import { dispatchSaveAndRunStory, dispatchSetStory } from "../../common/redux/vi
 import { IRootState } from "../../store";
 import { editorTextAreaStyle } from "../../common/styles/controlStyles";
 import { PrimaryButton } from "office-ui-fabric-react/lib/components/Button/PrimaryButton/PrimaryButton";
+import { getStrings } from "../../common/localization/Localization";
 
 const mapStateToProps = (state: IRootState) => {
   return {
     story: state.viewEdit.story,
+    strings: getStrings(state.settings.locale),
     theme: state.settings.theme,
   };
 };
@@ -33,6 +35,8 @@ export class EditorViewC extends React.Component<EditorViewOwnProps> {
   }
 
   public render() {
+    const combinedProps = this.props as CombinedProps;
+
     return (
       <>
         <textarea
@@ -41,10 +45,14 @@ export class EditorViewC extends React.Component<EditorViewOwnProps> {
           onBlur={this.updateStory}
         />
         <div style={{ display: "flex", flexDirection: "row-reverse" }}>
-          <PrimaryButton styles={{ root: { display: "block" } }} text={"play"} onClick={this.runStory} />
+          <PrimaryButton
+            styles={{ root: { display: "block" } }}
+            text={combinedProps.strings.EditorPlay}
+            onClick={this.runStory}
+          />
         </div>
       </>
-    ); // TODO: localize
+    );
   }
 
   private runStory = () => {

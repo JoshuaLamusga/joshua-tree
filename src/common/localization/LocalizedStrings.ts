@@ -12,6 +12,7 @@ export const localizedStrings: ILocalizedStringSets = {
     MenuFileNew: "New",
     MenuFileOpen: "Open",
     MenuFileSave: "Save",
+    RunnerRestart: "Restart",
     ThemeContrastDark: "🌑 Contrast Dark",
     ThemeContrastLight: "☀️ Contrast Light",
     ThemeDefaultDark: "🌑 Default Dark",
@@ -24,5 +25,7 @@ export const localizedStrings: ILocalizedStringSets = {
     TipLanguage: "Language",
     TipNavigateCommandBar: "Use left and right arrow keys to navigate between commands.",
     TipTheme: "Theme",
+
+    EditorPlay: "Play",
   },
 };
