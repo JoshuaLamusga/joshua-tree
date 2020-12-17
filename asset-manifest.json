@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.css": "/joshua-tree/static/css/main.697671ac.chunk.css",
-    "main.js": "/joshua-tree/static/js/main.a3924225.chunk.js",
-    "main.js.map": "/joshua-tree/static/js/main.a3924225.chunk.js.map",
+    "main.css": "/joshua-tree/static/css/main.1d7e2ab1.chunk.css",
+    "main.js": "/joshua-tree/static/js/main.f39b500d.chunk.js",
+    "main.js.map": "/joshua-tree/static/js/main.f39b500d.chunk.js.map",
     "runtime-main.js": "/joshua-tree/static/js/runtime-main.da0229f7.js",
     "runtime-main.js.map": "/joshua-tree/static/js/runtime-main.da0229f7.js.map",
-    "static/js/2.99d4082b.chunk.js": "/joshua-tree/static/js/2.99d4082b.chunk.js",
-    "static/js/2.99d4082b.chunk.js.map": "/joshua-tree/static/js/2.99d4082b.chunk.js.map",
+    "static/js/2.07e5f81a.chunk.js": "/joshua-tree/static/js/2.07e5f81a.chunk.js",
+    "static/js/2.07e5f81a.chunk.js.map": "/joshua-tree/static/js/2.07e5f81a.chunk.js.map",
     "index.html": "/joshua-tree/index.html",
-    "static/css/main.697671ac.chunk.css.map": "/joshua-tree/static/css/main.697671ac.chunk.css.map",
-    "static/js/2.99d4082b.chunk.js.LICENSE.txt": "/joshua-tree/static/js/2.99d4082b.chunk.js.LICENSE.txt"
+    "static/css/main.1d7e2ab1.chunk.css.map": "/joshua-tree/static/css/main.1d7e2ab1.chunk.css.map",
+    "static/js/2.07e5f81a.chunk.js.LICENSE.txt": "/joshua-tree/static/js/2.07e5f81a.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.da0229f7.js",
-    "static/js/2.99d4082b.chunk.js",
-    "static/css/main.697671ac.chunk.css",
-    "static/js/main.a3924225.chunk.js"
+    "static/js/2.07e5f81a.chunk.js",
+    "static/css/main.1d7e2ab1.chunk.css",
+    "static/js/main.f39b500d.chunk.js"
   ]
 }
