@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Dispatch } from "redux";
 import { dispatchRerenderStory, dispatchSaveAndRunStory, dispatchSetStory } from "../common/redux/viewedit.reducers";
-import { isInPlayMode } from "../common/routing/Routing";
+import { isNotEditMode } from "../common/routing/Routing";
 import { hiddenAndInaccessible } from "../common/styles/controlStyles";
 
 /** A callback function after data loads that can be set from command invocation */
@@ -44,7 +44,7 @@ export class OpenFileHandlerC extends React.Component<RouteComponentProps> {
         fileReader.onloadend = () => {
           const result = fileReader.result as string;
 
-          if (isInPlayMode()) {
+          if (isNotEditMode()) {
             (this.props as CombinedProps).saveAndRunStory(result);
           } else {
             (this.props as CombinedProps).setStory(result);

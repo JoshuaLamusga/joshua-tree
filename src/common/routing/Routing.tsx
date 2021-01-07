@@ -14,6 +14,7 @@ import { localizedStrings } from "../localization/LocalizedStrings";
 import { themes } from "../themes";
 import { OpenFileHandler } from "../../gui/OpenFileHandler";
 import { RunnerView } from "../../gui/runner/RunnerView";
+import { MenuBar } from "../../gui/menu/MenuBar";
 
 export const routes = {
   base: "/",
@@ -35,14 +36,13 @@ const mapStateToProps = (state: IRootState) => {
   };
 };
 
-/** Returns true when the user is on one of the named routes. */
-function isOnPage(route: keyof typeof routes) {
-  debugger;
-  return window.location.hash.substring(1).toLowerCase().startsWith(routes[route]);
+/** Returns true when the user is on the named route. */
+export function isOnPage(route: keyof typeof routes) {
+  return routes[route] === window.location.hash.replace(/\?.*/g, "").substring(1).toLowerCase();
 }
 
-/** Returns true when the user is playing a game rather than authoring one. */
-export function isInPlayMode() {
+/** Returns true when the user is playing a game or on the welcome page rather than authoring one. */
+export function isNotEditMode() {
   return !isOnPage("edit");
 }
 
@@ -72,6 +72,7 @@ export class RoutingC extends React.Component<RoutingPropsWithRouteInfo> {
     return (
       <>
         <OpenFileHandler />
+        <MenuBar />
         <Switch>
           <Route path={routes.base} exact={true} component={Welcome} />
           <Route path={routes.edit} component={RunnerEditorView} />

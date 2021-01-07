@@ -27,7 +27,7 @@ export class WelcomeC extends React.Component<CombinedProps> {
           alignContent: "center",
           display: "flex",
           flexDirection: "column",
-          height: "100vh",
+          height: "90vh",
           justifyContent: "center",
         }}
       >

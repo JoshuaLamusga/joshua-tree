@@ -1,9 +1,9 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { commandBarDropdownStyle } from "../common/styles/controlStyles";
+import { commandBarDropdownStyle } from "../../common/styles/controlStyles";
 import { IDropdownProps, IDropdownStyles } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
 import { Dropdown } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown";
-import { IRootState } from "../store";
+import { IRootState } from "../../store";
 
 const mapStateToProps = (state: IRootState) => {
   return {
