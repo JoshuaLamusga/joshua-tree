@@ -1,9 +1,15 @@
 import { getActionGuid } from "./reduxTools";
 
 export const actions = {
+  newStory: getActionGuid(),
   rerenderStory: getActionGuid(),
   saveAndRunStory: getActionGuid(),
   updateStory: getActionGuid(),
+};
+
+/** Starts a new story, resetting all values to default. */
+export const newStory = {
+  type: actions.newStory,
 };
 
 /** Re-renders the visual state of the interpreter.  */

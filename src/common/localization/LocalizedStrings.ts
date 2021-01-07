@@ -19,7 +19,6 @@ export const localizedStrings: ILocalizedStringSets = {
     ThemeDefaultLight: "☀️ Default Light",
     ThemeDeepSea: "🌑 Deep Sea",
     ThemeEarthAndSky: "☀️ Earth and Sky",
-    ThemeLucky: "☀️ Lucky",
     ThemeMidnightEarth: "🌑 Midnight Earth",
     ThemeDropdownText: (themeName: string) => `${themeName} theme`,
     TipLanguage: "Language",

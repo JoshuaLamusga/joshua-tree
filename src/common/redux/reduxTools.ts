@@ -7,3 +7,8 @@ let uniqueActionType = Number.MIN_SAFE_INTEGER;
 export const getActionGuid = () => {
   return (++uniqueActionType).toString();
 };
+
+/** The expected type of any action. */
+export interface IAction {
+  type: string;
+}

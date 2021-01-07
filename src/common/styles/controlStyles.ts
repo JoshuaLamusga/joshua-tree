@@ -161,3 +161,16 @@ export const runnerOutputWrapperStyle = mergeStyles({
 
 /** Styles the div containing all controls associated to the runner so they display properly. */
 export const runnerWrapperStyle = mergeStyles({ display: "flex", flexDirection: "column", height: "90vh" });
+
+/** Styles a main button on the welcome page. */
+export const welcomeButtonStyle = (theme: ITheme): IButtonStyles => {
+  return {
+    root: [
+      theme.fonts.large,
+      {
+        margin: "2rem",
+        padding: "2rem",
+      },
+    ],
+  };
+};
