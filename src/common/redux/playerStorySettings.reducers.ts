@@ -1,67 +1,81 @@
 import { combineReducers, Dispatch } from "redux";
 import * as actions from "./playerStorySettings.actions";
+import { IAction } from "./reduxTools";
 import * as types from "./typedefs";
+import { newStory } from "./viewedit.actions";
 
-const playerStoryInputStyles = (state = {}, action: ReturnType<typeof actions.setPlayerStoryInputStyles>) => {
+const playerStoryInputStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setPlayerStoryInputStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setPlayerStoryInputStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const playerStoryLogSeparatorStyles = (
-  state = {},
-  action: ReturnType<typeof actions.setPlayerStoryLogSeparatorStyles>
-) => {
+const playerStoryLogSeparatorStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setPlayerStoryLogSeparatorStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setPlayerStoryLogSeparatorStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const playerStoryOptionStyles = (state = {}, action: ReturnType<typeof actions.setPlayerStoryOptionStyles>) => {
+const playerStoryOptionStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setPlayerStoryOptionStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setPlayerStoryOptionStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const playerStoryOptionHighlightStyles = (
-  state = {},
-  action: ReturnType<typeof actions.setPlayerStoryOptionHighlightStyles>
-) => {
+const playerStoryOptionHighlightStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setPlayerStoryOptionHighlightStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setPlayerStoryOptionHighlightStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const playerStoryOutputStyles = (state = {}, action: ReturnType<typeof actions.setPlayerStoryOutputStyles>) => {
+const playerStoryOutputStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setPlayerStoryOutputStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setPlayerStoryOutputStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const playerStoryRunnerOptions = (state = {}, action: ReturnType<typeof actions.setPlayerStoryRunnerOptions>) => {
+const playerStoryRunnerOptions = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setPlayerStoryRunnerOptions) {
-    return action.options;
+    return (action as ReturnType<typeof actions.setPlayerStoryRunnerOptions>).options;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const playerStoryRunnerStyles = (
-  state = { background: { type: "plain" } },
-  action: ReturnType<typeof actions.setPlayerStoryRunnerStyles>
-) => {
+const playerStoryRunnerStyles = (state = { background: { type: "plain" } }, action: IAction) => {
   if (action.type === actions.actions.setPlayerStoryRunnerStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setPlayerStoryRunnerStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return { background: { type: "plain" } };
   }
 
   return state;

@@ -1,17 +1,21 @@
 import { combineReducers, Dispatch } from "redux";
-import { actions, updateStory, saveAndRunStory, rerenderStory } from "./viewedit.actions";
+import { IAction } from "./reduxTools";
+import { actions, updateStory, saveAndRunStory, rerenderStory, newStory } from "./viewedit.actions";
 
 /**
  * Contains the up-to-date text for the story, which is updated when loading a story, adding to
  * it with GUI controls, trying to run the story after editing the source, or blurring the textarea
  * after editing the source.
  */
-const story = (state = "", action: ReturnType<typeof updateStory | typeof saveAndRunStory>) => {
+const story = (state = "", action: IAction) => {
   if (action.type === actions.updateStory) {
-    return action.story;
+    return (action as ReturnType<typeof updateStory>).story;
   }
   if (action.type === actions.saveAndRunStory) {
-    return action.story;
+    return (action as ReturnType<typeof saveAndRunStory>).story;
+  }
+  if (action.type === actions.newStory) {
+    return "";
   }
 
   return state;
@@ -21,9 +25,12 @@ const story = (state = "", action: ReturnType<typeof updateStory | typeof saveAn
  * Contains the copy of the story from when it was last executed, which may be older than the
  * current story. Updating this causes the story to execute again.
  */
-const storyToParse = (state = "", action: ReturnType<typeof saveAndRunStory>) => {
+const storyToParse = (state = "", action: IAction) => {
   if (action.type === actions.saveAndRunStory) {
-    return action.story;
+    return (action as ReturnType<typeof saveAndRunStory>).story;
+  }
+  if (action.type === actions.newStory) {
+    return "";
   }
 
   return state;
@@ -33,7 +40,7 @@ const storyToParse = (state = "", action: ReturnType<typeof saveAndRunStory>) =>
  * Uses a number to indicate that the story should be parsed again. Necessary because there is no good way to pass the
  * action from the editor to runner, and restarting without the story text changing is a common operation.
  */
-const storyReparseToken = (state = 0, action: ReturnType<typeof saveAndRunStory>) => {
+const storyReparseToken = (state = 0, action: IAction) => {
   if (action.type === actions.saveAndRunStory) {
     return state + 1;
   }
@@ -45,12 +52,17 @@ const storyReparseToken = (state = 0, action: ReturnType<typeof saveAndRunStory>
  * Uses a number to indicate that the runner should re-render. The alternative is to re-render any time output, input,
  * and logs change, which gets up to 20-30 re-renders per new page. Instead, increment this when the page is done.
  */
-const storyRerenderToken = (state = 0, action: typeof rerenderStory) => {
+const storyRerenderToken = (state = 0, action: IAction) => {
   if (action.type === actions.rerenderStory) {
     return state + 1;
   }
 
   return state;
+};
+
+/** Clears all story-related states. */
+export const dispatchNewStory = (dispatch: Dispatch) => {
+  dispatch(newStory);
 };
 
 /** Sets the story that the user has typed. */

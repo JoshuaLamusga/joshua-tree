@@ -5,36 +5,22 @@ import { commandIds, invokeCommand } from "../../common/commands/commands";
 import { getStrings } from "../../common/localization/Localization";
 import { localizedStrings } from "../../common/localization/LocalizedStrings";
 import { dispatchSetLocale, dispatchSetTheme } from "../../common/settings/settings.reducers";
-import { loadFromLocalStorage, saveToLocalStorage } from "../../common/storage/persistence";
-import { dispatchSetUserConsentProvided } from "../../common/storage/persistence.reducers";
+import { saveToLocalStorage } from "../../common/storage/persistence";
 import {
   iconSpaceBeforeTextStyle,
   commandBarItemStyle,
   commandBarDropdownButtonStyle,
   commandBarDropdownSeparatorStyle,
   commandBarStyle,
-  hiddenAndInaccessible,
 } from "../../common/styles/controlStyles";
 import { ISupportedTheme, themes } from "../../common/themes";
 import { IRootState } from "../../store";
-import { CommandBarDropdown } from "./MenuBarDropdown";
-import { dispatchSetStory } from "../../common/redux/viewedit.reducers";
 import { getTheme } from "office-ui-fabric-react/lib/Styling";
 import { ICommandBarItemProps } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar.types";
 import { CommandBar } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar";
 import { IDropdownOption } from "office-ui-fabric-react/lib/components/Dropdown/Dropdown.types";
 import { Icon } from "office-ui-fabric-react/lib/components/Icon/Icon";
-
-/**
- * Browsers require a click to invoke an open file dialog, so this invokes a click on a hidden
- * input element rendered as part of the main command bar. This enables seamless functionality.
- */
-export function invokeOpenCommand() {
-  hiddenInputRef.current?.click();
-}
-
-/** Browsers require a click event on an input control, which is automatically done via this one. */
-const hiddenInputRef = React.createRef<HTMLInputElement>();
+import { CommandBarDropdown } from "../MenuBarDropdown";
 
 const mapStateToProps = (state: IRootState) => {
   return {
@@ -49,9 +35,7 @@ const mapStateToProps = (state: IRootState) => {
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    setConsent: dispatchSetUserConsentProvided(dispatch),
     setLocale: dispatchSetLocale(dispatch),
-    setStory: dispatchSetStory(dispatch),
     setTheme: dispatchSetTheme(dispatch),
   };
 };
@@ -62,40 +46,33 @@ type CombinedProps = MainCommandBarOwnProps &
   ReturnType<typeof mapStateToProps> &
   ReturnType<typeof mapDispatchToProps>;
 
-export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
-  /** Applies all user setting stored in local storage, if consent was provided. */
-  public componentDidMount() {
-    if ((this.props as CombinedProps).userConsentProvided) {
-      this.applyLocalStorage();
-    }
-  }
-
+export class EditorMenuBarC extends React.Component<MainCommandBarOwnProps> {
   public render() {
     // File-related options.
     const items: ICommandBarItemProps[] = [
       {
         className: commandBarItemStyle((this.props as CombinedProps).wholeTheme, true),
-        data: commandIds.mainMenuFileNew,
+        data: commandIds.newProject,
         key: "userSettingsCommandBarFileMenuNew",
         name: (this.props as CombinedProps).strings.MenuFileNew,
         iconProps: { iconName: "FabricNewFolder" },
-        onClick: () => invokeCommand(commandIds.mainMenuFileNew),
+        onClick: () => invokeCommand(commandIds.newProject),
       },
       {
         className: commandBarItemStyle((this.props as CombinedProps).wholeTheme, true),
-        data: commandIds.mainMenuFileOpen,
+        data: commandIds.openProjectOrGame,
         key: "userSettingsCommandBarFileMenuOpen",
         name: (this.props as CombinedProps).strings.MenuFileOpen,
         iconProps: { iconName: "OpenFolderHorizontal" },
-        onClick: () => invokeCommand(commandIds.mainMenuFileOpen),
+        onClick: () => invokeCommand(commandIds.openProjectOrGame),
       },
       {
         className: commandBarItemStyle((this.props as CombinedProps).wholeTheme),
-        data: commandIds.mainMenuFileSave,
+        data: commandIds.saveProject,
         key: "userSettingsCommandBarFileMenuSave",
         name: (this.props as CombinedProps).strings.MenuFileSave,
         iconProps: { iconName: "Save" },
-        onClick: () => invokeCommand(commandIds.mainMenuFileSave),
+        onClick: () => invokeCommand(commandIds.saveProject),
       },
     ];
 
@@ -114,48 +91,15 @@ export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
       },
     ];
 
-    /** Loads the given file to a string for parsing. */
-    const handleFile = async (ev: React.ChangeEvent<HTMLInputElement>) => {
-      const chosenFiles = ev.target.files;
-
-      if (chosenFiles) {
-        const fileReader = new FileReader();
-
-        fileReader.onloadend = () => {
-          const result = fileReader.result as string;
-          (this.props as CombinedProps).setStory(result);
-        };
-
-        fileReader.readAsText(chosenFiles[0]);
-      }
-    };
-
     return (
-      <>
-        <input className={hiddenAndInaccessible} onChange={handleFile} ref={hiddenInputRef} type="file" />
-        <CommandBar
-          ariaLabel={(this.props as CombinedProps).strings.TipNavigateCommandBar}
-          items={items}
-          farItems={farItems}
-          styles={commandBarStyle}
-        />
-      </>
+      <CommandBar
+        ariaLabel={(this.props as CombinedProps).strings.TipNavigateCommandBar}
+        items={items}
+        farItems={farItems}
+        styles={commandBarStyle}
+      />
     );
   }
-
-  /** Updates redux with content loaded from local storage. */
-  private applyLocalStorage = () => {
-    const state = loadFromLocalStorage();
-    if (state !== null) {
-      if (state.localeId in localizedStrings) {
-        (this.props as CombinedProps).setLocale(state.localeId);
-      }
-
-      if (themes[state.theme] !== null) {
-        (this.props as CombinedProps).setTheme(themes[state.theme]);
-      }
-    }
-  };
 
   /** Generates a key for options in the locale dropdown menu. */
   private getLocaleDropdownOptionKey = (localeId: string) => {
@@ -258,4 +202,4 @@ export class MenuBarC extends React.Component<MainCommandBarOwnProps> {
   };
 }
 
-export const MenuBar = connect(mapStateToProps, mapDispatchToProps)(MenuBarC);
+export const EditorMenuBar = connect(mapStateToProps, mapDispatchToProps)(EditorMenuBarC);

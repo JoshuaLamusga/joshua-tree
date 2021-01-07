@@ -1,75 +1,92 @@
 import { combineReducers, Dispatch } from "redux";
 import * as actions from "./authorStorySettings.actions";
+import { IAction } from "./reduxTools";
 import * as types from "./typedefs";
+import { newStory } from "./viewedit.actions";
 
-const authorStoryInputStyles = (state = {}, action: ReturnType<typeof actions.setAuthorStoryInputStyles>) => {
+const authorStoryInputStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setAuthorStoryInputStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setAuthorStoryInputStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const authorStoryLogSeparatorStyles = (
-  state = {},
-  action: ReturnType<typeof actions.setAuthorStoryLogSeparatorStyles>
-) => {
+const authorStoryLogSeparatorStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setAuthorStoryLogSeparatorStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setAuthorStoryLogSeparatorStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const authorStoryOptionStyles = (state = {}, action: ReturnType<typeof actions.setAuthorStoryOptionStyles>) => {
+const authorStoryOptionStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setAuthorStoryOptionStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setAuthorStoryOptionStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const authorStoryOptionHighlightStyles = (
-  state = {},
-  action: ReturnType<typeof actions.setAuthorStoryOptionHighlightStyles>
-) => {
+const authorStoryOptionHighlightStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setAuthorStoryOptionHighlightStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setAuthorStoryOptionHighlightStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const authorStoryOutputStyles = (state = {}, action: ReturnType<typeof actions.setAuthorStoryOutputStyles>) => {
+const authorStoryOutputStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setAuthorStoryOutputStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setAuthorStoryOutputStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const authorStoryRunnerOptions = (state = {}, action: ReturnType<typeof actions.setAuthorStoryRunnerOptions>) => {
+const authorStoryRunnerOptions = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setAuthorStoryRunnerOptions) {
-    return action.options;
+    return (action as ReturnType<typeof actions.setAuthorStoryRunnerOptions>).options;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;
 };
 
-const authorStoryRunnerStyles = (
-  state = { background: { type: "plain" } },
-  action: ReturnType<typeof actions.setAuthorStoryRunnerStyles>
-) => {
+const authorStoryRunnerStyles = (state = { background: { type: "plain" } }, action: IAction) => {
   if (action.type === actions.actions.setAuthorStoryRunnerStyles) {
-    return action.style;
+    return (action as ReturnType<typeof actions.setAuthorStoryRunnerStyles>).style;
+  }
+  if (action.type === newStory.type) {
+    return { background: { type: "plain" } };
   }
 
   return state;
 };
 
-const authorStoryStrings = (state = {}, action: ReturnType<typeof actions.setAuthorStoryStrings>) => {
+const authorStoryStrings = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setAuthorStoryStrings) {
-    return action.strings;
+    return (action as ReturnType<typeof actions.setAuthorStoryStrings>).strings;
+  }
+  if (action.type === newStory.type) {
+    return {};
   }
 
   return state;

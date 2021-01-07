@@ -1,4 +1,6 @@
-import { invokeOpenCommand } from "../../gui/menu/MenuBar";
+import { invokeOpenCommand } from "../../gui/OpenFileHandler";
+import { store } from "../../store";
+import { newStory } from "../redux/viewedit.actions";
 import { IShortcut } from "./shortcutManager";
 
 /** A command is a set of functions executed when the command is invoked by identity. */
@@ -27,54 +29,59 @@ export interface ICommandFunction {
  * valuable to define frequent or important user actions as commands.
  */
 export enum commandIds {
-  mainMenuFileNew = "mainMenuFileNew",
-  mainMenuFileOpen = "mainMenuFileOpen",
-  mainMenuFileSave = "mainMenuFileSave",
+  newProject = "newProject",
+  openProjectOrGame = "openProjectOrGame",
+  saveProject = "saveProject",
 }
 
-/** Prompts the user to save first, then starts a new project. */
-const actionMainMenuFileNew: ICommandFunction = {
+/**
+ * Disabled in play mode. Prompts the author to save unsaved changes, then starts a new project. */
+const actionNewProject: ICommandFunction = {
   function: () => {
-    alert("Invoked file -> new."); //TODO
+    store.dispatch(newStory);
   },
 };
 
-/** Prompts the user to save first, then opens the given file. */
-const actionMainMenuFileOpen: ICommandFunction = {
-  function: () => {
-    invokeOpenCommand();
+/**
+ * If in play mode, prompts the player to save unsaved progress, then opens a different game.
+ * If in edit mode, prompts the author to save unsaved changes, then opens a different game.
+ */
+const actionOpenProjectOrGame: ICommandFunction = {
+  function: (data?: { data?: { data: Function } }) => {
+    invokeOpenCommand(data?.data?.data ?? undefined);
   },
 };
 
-/** Saves all changes. Prompts for a save location if never before saved. */
-const actionMainMenuFileSave: ICommandFunction = {
+/**
+ * Disabled in play mode. Prompts the author for a save location if never saved, or online version is in use. */
+const actionSaveProject: ICommandFunction = {
   function: () => {
     alert("Invoked file -> save."); //TODO
   },
 };
 
 export const commands: { [key in commandIds]: ICommand } = {
-  mainMenuFileNew: {
-    functionsToInvoke: [actionMainMenuFileNew],
-    guid: commandIds.mainMenuFileNew as commandIds,
+  newProject: {
+    functionsToInvoke: [actionNewProject],
+    guid: commandIds.newProject as commandIds,
     shortcuts: [
       {
         originalSequence: [{ key: "N", usesShift: true }],
       },
     ],
   },
-  mainMenuFileOpen: {
-    functionsToInvoke: [actionMainMenuFileOpen],
-    guid: commandIds.mainMenuFileOpen as commandIds,
+  openProjectOrGame: {
+    functionsToInvoke: [actionOpenProjectOrGame],
+    guid: commandIds.openProjectOrGame as commandIds,
     shortcuts: [
       {
         originalSequence: [{ key: "O", usesShift: true }],
       },
     ],
   },
-  mainMenuFileSave: {
-    functionsToInvoke: [actionMainMenuFileSave],
-    guid: commandIds.mainMenuFileSave as commandIds,
+  saveProject: {
+    functionsToInvoke: [actionSaveProject],
+    guid: commandIds.saveProject as commandIds,
     shortcuts: [
       {
         originalSequence: [{ key: "S", usesShift: true }],
@@ -95,9 +102,9 @@ export const invokeCommand = (Id: commandIds, data?: ICommandFunctionData) => {
     return;
   }
 
-  if (commands[Id].disabled !== true) {
+  if (!commands[Id].disabled) {
     commands[Id].functionsToInvoke.forEach((func: ICommandFunction) => {
-      if (func.disabled !== true) {
+      if (!func.disabled) {
         func.function(data);
       }
     });

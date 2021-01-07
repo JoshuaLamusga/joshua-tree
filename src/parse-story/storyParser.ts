@@ -52,7 +52,7 @@ function isOutput(text: string, index: number) {
 }
 
 /** Updates the passed-in interpreter with a node tree for each fork. */
-export function parseStory(story: string, interpreter: React.RefObject<StoryInterpreterC>, forkToLoad?: string) {
+export function parseStory(story: string, interpreter: StoryInterpreterC | null, forkToLoad?: string) {
   const entries: { [key: string]: string } = {};
   const parsed: { [key: string]: StoryParseNode } = {};
 
@@ -60,11 +60,8 @@ export function parseStory(story: string, interpreter: React.RefObject<StoryInte
   const newlineSplitStory = story.split("\n");
 
   if (newlineSplitStory.length === 0) {
-    interpreter.current?.setEntries({});
-
-    if (interpreter.current) {
-      interpreter.current.setErrorMessage("Parser: Story is blank. The story must not be blank to parse it.");
-    }
+    interpreter?.setEntries({});
+    interpreter?.setErrorMessage("Parser: Story is blank. The story must not be blank to parse it.");
   }
 
   // Finds fork header positions, normalizes line endings, and removes excess space.
@@ -84,18 +81,16 @@ export function parseStory(story: string, interpreter: React.RefObject<StoryInte
       header += newlineSplitStory[i] + "\n";
     }
 
-    interpreter.current?.processHeaderOptions(header);
+    interpreter?.processHeaderOptions(header);
   }
 
   // Splits entries into a dictionary.
   for (let i = 0; i < entryPositions.length; i++) {
     // Prevents unnamed entries.
     if (newlineSplitStory[entryPositions[i]].length < 2) {
-      if (interpreter.current) {
-        interpreter.current.setErrorMessage(
-          "Parser: Entry" + newlineSplitStory[entryPositions[i]] + "must be at least 1 character long."
-        );
-      }
+      interpreter?.setErrorMessage(
+        "Parser: Entry" + newlineSplitStory[entryPositions[i]] + "must be at least 1 character long."
+      );
 
       continue;
     }
@@ -120,9 +115,7 @@ export function parseStory(story: string, interpreter: React.RefObject<StoryInte
     entryName = entryName.replace(/\s+/g, "").toLowerCase();
 
     if (entries[entryName] !== undefined) {
-      if (interpreter.current) {
-        interpreter.current.setErrorMessage(`Parser: Entry called '${entryName}' already exists.`);
-      }
+      interpreter?.setErrorMessage(`Parser: Entry called '${entryName}' already exists.`);
     } else {
       entries[entryName] = entry;
     }
@@ -198,8 +191,8 @@ export function parseStory(story: string, interpreter: React.RefObject<StoryInte
     }
 
     // Ensures the number of if and endif statements match.
-    if (ifs.length !== endifs.length && interpreter.current) {
-      interpreter.current.setErrorMessage(
+    if (ifs.length !== endifs.length) {
+      interpreter?.setErrorMessage(
         `Parser: found ${ifs.length} if tokens, but ${endifs.length} ` +
           "endif tokens. Ifs and endifs must match in number."
       );
@@ -269,11 +262,9 @@ export function parseStory(story: string, interpreter: React.RefObject<StoryInte
           const prevElemEnd = prevElemBegin + prevElemCond.length;
 
           if (elemBegin - prevElemEnd < 0) {
-            if (interpreter.current) {
-              interpreter.current.setErrorMessage(
-                `Parser: In '${text.substring(prevElemBegin)}', cannot specify multiple if tokens on one line.`
-              );
-            }
+            interpreter?.setErrorMessage(
+              `Parser: In '${text.substring(prevElemBegin)}', cannot specify multiple if tokens on one line.`
+            );
 
             continue;
           }
@@ -314,13 +305,8 @@ export function parseStory(story: string, interpreter: React.RefObject<StoryInte
       else if (elemType === 1) {
         // The parser always returns since it cannot continue.
         if (depth < 0) {
-          interpreter.current?.setEntries({});
-
-          if (interpreter.current) {
-            interpreter.current.setErrorMessage(
-              "Parser: an extra endif token was encountered (if/endif # " + (j + 1) + ")."
-            );
-          }
+          interpreter?.setEntries({});
+          interpreter?.setErrorMessage("Parser: an extra endif token was encountered (if/endif # " + (j + 1) + ").");
 
           return;
         }
@@ -332,11 +318,9 @@ export function parseStory(story: string, interpreter: React.RefObject<StoryInte
         // Determines if the length is negative.
         const prevElemEnd = prevElemBegin + prevElemCond.length;
         if (elemBegin - prevElemEnd < 0) {
-          if (interpreter.current) {
-            interpreter.current.setErrorMessage(
-              "Parser: In '" + text.substring(prevElemBegin) + "', cannot specify multiple endif tokens on one line."
-            );
-          }
+          interpreter?.setErrorMessage(
+            "Parser: In '" + text.substring(prevElemBegin) + "', cannot specify multiple endif tokens on one line."
+          );
 
           continue;
         }
@@ -351,11 +335,8 @@ export function parseStory(story: string, interpreter: React.RefObject<StoryInte
         if (node.parent !== null) {
           node = node.parent;
         } else {
-          interpreter.current?.setEntries({});
-
-          if (interpreter.current) {
-            interpreter.current.setErrorMessage("Parser: an extra endif token was encountered (endif #" + j + ").");
-          }
+          interpreter?.setEntries({});
+          interpreter?.setErrorMessage("Parser: an extra endif token was encountered (endif #" + j + ").");
 
           return;
         }
@@ -391,5 +372,5 @@ export function parseStory(story: string, interpreter: React.RefObject<StoryInte
     parsed[entriesKeys[i]] = root;
   }
 
-  interpreter.current?.setEntriesWithFork(parsed, forkToLoad ?? "");
+  interpreter?.setEntriesWithFork(parsed, forkToLoad ?? "");
 }

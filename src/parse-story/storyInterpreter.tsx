@@ -153,7 +153,7 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
     );
   };
 
-  constructor(props: CombinedProps) {
+  constructor(props: StoryInterpreterOwnProps) {
     super(props);
     this.refreshInterpreter();
   }

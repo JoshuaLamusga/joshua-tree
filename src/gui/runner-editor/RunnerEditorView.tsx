@@ -4,7 +4,7 @@ import { mainViewWrapperStyle, mainViewEditorStyle, mainViewRunnerStyle } from "
 import { connect } from "react-redux";
 import { IRootState } from "../../store";
 import { EditorView } from "../editor/EditorView";
-import { MenuBar } from "../menu/MenuBar";
+import { EditorMenuBar } from "../editor/EditorMenuBar";
 import { RunnerView } from "../runner/RunnerView";
 
 const mapStateToProps = (state: IRootState) => {
@@ -21,7 +21,7 @@ export class RunnerEditorViewC extends React.Component<RunnerEditorOwnProps> {
   public render() {
     return (
       <>
-        <MenuBar />
+        <EditorMenuBar />
         <div className={mainViewWrapperStyle}>
           <div id={idEditorWrapper} className={mainViewEditorStyle}>
             <EditorView />

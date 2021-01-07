@@ -30,7 +30,11 @@ type CombinedProps = EditorViewOwnProps & ReturnType<typeof mapStateToProps> & R
 export class EditorViewC extends React.Component<EditorViewOwnProps> {
   public componentDidUpdate(prevProps: EditorViewOwnProps) {
     if ((this.props as CombinedProps).story !== (prevProps as CombinedProps).story) {
-      document.getElementById(idEditorInputfield)?.setAttribute("value", (this.props as CombinedProps).story);
+      const textArea = document.getElementById(idEditorInputfield) as HTMLTextAreaElement | undefined;
+
+      if (textArea) {
+        textArea.value = (this.props as CombinedProps).story;
+      }
     }
   }
 
@@ -40,6 +44,7 @@ export class EditorViewC extends React.Component<EditorViewOwnProps> {
     return (
       <>
         <textarea
+          defaultValue={(this.props as CombinedProps).story}
           style={editorTextAreaStyle((this.props as CombinedProps).theme.theme)}
           id={idEditorInputfield}
           onBlur={this.updateStory}

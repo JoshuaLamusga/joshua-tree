@@ -16,31 +16,38 @@ type RunnerViewOwnProps = {};
 type CombinedProps = RunnerViewOwnProps & ReturnType<typeof mapStateToProps>;
 
 export class RunnerViewC extends React.Component<RunnerViewOwnProps> {
-  private interpreterRef: React.RefObject<StoryInterpreterC>;
-
-  constructor(props: RunnerViewOwnProps) {
-    super(props);
-
-    this.interpreterRef = React.createRef<StoryInterpreterC>();
-  }
+  private interpreterRef: StoryInterpreterC | null = null;
 
   public componentDidUpdate() {
-    try {
-      parseStory((this.props as CombinedProps).storyToParse, this.interpreterRef);
-    } catch (ex) {
-      if (this.interpreterRef.current && typeof ex === "string") {
-        this.interpreterRef.current.setErrorMessage(ex);
-      } else if (this.interpreterRef.current && ex instanceof Error) {
-        this.interpreterRef.current.setErrorMessage(ex.message);
-      } else {
-        console.error("Reference to interpreter element was undefined. An additional error follows.");
-        console.error(ex);
-      }
-    }
+    this.parse();
   }
 
   public render() {
-    return <StoryInterpreter ref={this.interpreterRef} />;
+    return <StoryInterpreter ref={this.setInterpreterRef} />;
+  }
+
+  private setInterpreterRef = (ref: StoryInterpreterC | null) => {
+    if (ref !== null) {
+      this.interpreterRef = ref;
+      this.parse();
+    }
+  };
+
+  /** Parses the story with the given interpreter. */
+  private parse() {
+    if (this.interpreterRef === null) {
+      return;
+    }
+
+    try {
+      parseStory((this.props as CombinedProps).storyToParse, this.interpreterRef);
+    } catch (ex) {
+      if (typeof ex === "string") {
+        this.interpreterRef.setErrorMessage(ex);
+      } else if (ex instanceof Error) {
+        this.interpreterRef.setErrorMessage(ex.message);
+      }
+    }
   }
 }
 
