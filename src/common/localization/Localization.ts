@@ -75,7 +75,6 @@ export interface ILocalizedStrings {
   ThemeDefaultLight: string;
   ThemeDeepSea: string;
   ThemeEarthAndSky: string;
-  ThemeLucky: string;
   ThemeMidnightEarth: string;
   ThemeDropdownText: (themeName: string) => string;
   TipLanguage: string;
