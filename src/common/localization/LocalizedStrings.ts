@@ -7,11 +7,13 @@ export const localizedStrings: ILocalizedStringSets = {
   "en-us": {
     ApplicationName: "Joshua Tree",
     ApplicationNameAndVersion: (appName: string, appVersion: string) => `${appName} version ${appVersion}`,
+    EditorPlay: "Play",
     LanguageCodeName: "English (United States)",
     MenuFile: "File",
     MenuFileNew: "New",
     MenuFileOpen: "Open",
     MenuFileSave: "Save",
+    MenuFileSwitch: "Switch between play and edit",
     RunnerRestart: "Restart",
     ThemeContrastDark: "🌑 Contrast Dark",
     ThemeContrastLight: "☀️ Contrast Light",
@@ -24,7 +26,5 @@ export const localizedStrings: ILocalizedStringSets = {
     TipLanguage: "Language",
     TipNavigateCommandBar: "Use left and right arrow keys to navigate between commands.",
     TipTheme: "Theme",
-
-    EditorPlay: "Play",
   },
 };

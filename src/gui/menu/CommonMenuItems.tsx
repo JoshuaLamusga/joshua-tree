@@ -43,7 +43,7 @@ export const getCommonCommandItems = (values: IValues): ICommandBarItemProps[] =
     });
 
     /** Switches all GUI to display in the user-chosen language. */
-    const updateChangedLocale = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
+    const updateChangedLocale = (_: React.FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
       if (option !== undefined) {
         const localeId = option.data as keyof typeof localizedStrings;
         values.setLocale(localeId).then(() => {

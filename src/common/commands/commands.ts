@@ -1,8 +1,9 @@
 import { invokeOpenCommand } from "../../gui/OpenFileHandler";
 import { store } from "../../store";
 import { newStory } from "../redux/viewedit.actions";
-import { isNotEditMode } from "../routing/Routing";
+import { isNotEditMode, routes } from "../routing/Routing";
 import { IShortcut } from "./shortcutManager";
+import { RouteComponentProps } from "react-router-dom";
 
 /** A command is a set of functions executed when the command is invoked by identity. */
 export interface ICommand {
@@ -29,6 +30,7 @@ export enum commandIds {
   newProject = "newProject",
   openProjectOrGame = "openProjectOrGame",
   saveProjectOrGame = "saveProjectOrGame",
+  switchMode = "switchMode",
 }
 
 /**
@@ -67,6 +69,14 @@ const actionSaveProject: ICommandFunction = () => {
   alert("Invoked file -> save project."); //TODO
 };
 
+const actionSwitchMode: ICommandFunction = (data?: { data?: { history: RouteComponentProps["history"] } }) => {
+  if (isNotEditMode()) {
+    data?.data?.history.push(routes.edit);
+  } else {
+    data?.data?.history.push(routes.play);
+  }
+};
+
 export const commands: { [key in commandIds]: ICommand } = {
   newProject: {
     functionsToInvoke: [actionNewProject],
@@ -92,6 +102,15 @@ export const commands: { [key in commandIds]: ICommand } = {
     shortcuts: [
       {
         originalSequence: [{ key: "S", usesShift: true }],
+      },
+    ],
+  },
+  switchMode: {
+    functionsToInvoke: [actionSwitchMode],
+    guid: commandIds.switchMode as commandIds,
+    shortcuts: [
+      {
+        originalSequence: [],
       },
     ],
   },

@@ -68,6 +68,7 @@ export interface ILocalizedStrings {
   MenuFileNew: string;
   MenuFileOpen: string;
   MenuFileSave: string;
+  MenuFileSwitch: string;
   RunnerRestart: string;
   ThemeContrastDark: string;
   ThemeContrastLight: string;

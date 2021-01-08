@@ -1,5 +1,4 @@
 import * as React from "react";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Route, Switch } from "react-router";
 import { Welcome } from "../../gui/welcome/Welcome";
 import { RunnerEditorView } from "../../gui/runner-editor/RunnerEditorView";
@@ -54,11 +53,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
 };
 
 type RoutingOwnProps = {};
-type RoutingPropsWithRouteInfo = RoutingOwnProps & RouteComponentProps;
-type CombinedProps = RoutingOwnProps &
-  RouteComponentProps &
-  ReturnType<typeof mapStateToProps> &
-  ReturnType<typeof mapDispatchToProps>;
+type RoutingPropsWithRouteInfo = RoutingOwnProps;
+type CombinedProps = RoutingOwnProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 
 export class RoutingC extends React.Component<RoutingPropsWithRouteInfo> {
   /** Applies all user setting stored in local storage, if consent was provided. */
@@ -97,4 +93,4 @@ export class RoutingC extends React.Component<RoutingPropsWithRouteInfo> {
   };
 }
 
-export const Routing = connect(mapStateToProps, mapDispatchToProps)(withRouter(RoutingC));
+export const Routing = connect(mapStateToProps, mapDispatchToProps)(RoutingC);

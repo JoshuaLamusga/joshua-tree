@@ -4,7 +4,6 @@ import { Dispatch } from "redux";
 import { getTheme } from "office-ui-fabric-react/lib/Styling";
 import { ICommandBarItemProps } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar.types";
 import { CommandBar } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import { isOnPage } from "../../common/routing/Routing";
 import { IRootState } from "../../store";
 import { getStrings } from "../../common/localization/Localization";
@@ -13,6 +12,7 @@ import { getEditorCommandItems } from "../editor/EditorMenuItems";
 import { commandBarStyle } from "../../common/styles/controlStyles";
 import { getRunnerCommandItems } from "../runner/RunnerMenuItems";
 import { getCommonCommandItems } from "./CommonMenuItems";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 
 const mapStateToProps = (state: IRootState) => {
   return {
@@ -33,25 +33,33 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
 };
 
 type MenuBarOwnProps = {};
-type MenuBarRoutingProps = MenuBarOwnProps & RouteComponentProps;
-type CombinedProps = MenuBarRoutingProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
+type MenuBarWithRouterProps = MenuBarOwnProps & RouteComponentProps;
+type CombinedProps = MenuBarWithRouterProps &
+  ReturnType<typeof mapStateToProps> &
+  ReturnType<typeof mapDispatchToProps>;
 
-export class MenuBarC extends React.Component<MenuBarRoutingProps> {
+export class MenuBarC extends React.Component<MenuBarWithRouterProps> {
   public render() {
+    const combinedProps = this.props as CombinedProps;
+
     let items: ICommandBarItemProps[];
-    const farItems: ICommandBarItemProps[] = getCommonCommandItems(this.props as CombinedProps);
+    let farItems = getCommonCommandItems(combinedProps);
 
     if (isOnPage("edit")) {
-      items = getEditorCommandItems(this.props as CombinedProps);
+      const editorItems = getEditorCommandItems(combinedProps);
+      items = editorItems.items;
+      farItems = [...editorItems.farItems, ...farItems];
     } else if (isOnPage("play")) {
-      items = getRunnerCommandItems(this.props as CombinedProps);
+      const runnerItems = getRunnerCommandItems(combinedProps);
+      items = runnerItems.items;
+      farItems = [...runnerItems.farItems, ...farItems];
     } else {
       items = [];
     }
 
     return (
       <CommandBar
-        ariaLabel={(this.props as CombinedProps).strings.TipNavigateCommandBar}
+        ariaLabel={combinedProps.strings.TipNavigateCommandBar}
         items={items}
         farItems={farItems}
         styles={commandBarStyle}
