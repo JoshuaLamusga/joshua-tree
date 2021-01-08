@@ -1,4 +1,4 @@
-import { commandIds, invokeCommand } from "../../common/commands/commands";
+import { commandIds, invokeCommand } from "../../common/commands/CommandHandler";
 import { getStrings } from "../../common/localization/Localization";
 import { commandBarItemStyle } from "../../common/styles/controlStyles";
 import { getTheme } from "office-ui-fabric-react/lib/Styling";
@@ -10,8 +10,8 @@ interface IValues {
 }
 
 /** Returns command bar items associated with the editor. */
-export const getEditorCommandItems = (values: IValues): ICommandBarItemProps[] => {
-  return [
+export const getEditorCommandItems = (values: IValues) => {
+  const items: ICommandBarItemProps[] = [
     {
       className: commandBarItemStyle(values.wholeTheme, true),
       data: commandIds.newProject,
@@ -37,4 +37,18 @@ export const getEditorCommandItems = (values: IValues): ICommandBarItemProps[] =
       onClick: () => invokeCommand(commandIds.saveProjectOrGame),
     },
   ];
+
+  const farItems: ICommandBarItemProps[] = [
+    {
+      className: commandBarItemStyle(values.wholeTheme),
+      data: commandIds.switchMode,
+      key: "userSettingsCommandBarFileMenuSwitchMode",
+      tooltipHostProps: { content: values.strings.MenuFileSwitch },
+      iconOnly: true,
+      iconProps: { iconName: "Switch" },
+      onClick: () => invokeCommand(commandIds.switchMode),
+    },
+  ];
+
+  return { items, farItems };
 };

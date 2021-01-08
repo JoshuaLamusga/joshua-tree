@@ -4,7 +4,7 @@ import { DefaultButton } from "office-ui-fabric-react";
 import * as React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { commandIds, invokeCommand } from "../../common/commands/commands";
+import { commandIds, invokeCommand } from "../../common/commands/CommandHandler";
 import { routes } from "../../common/routing/Routing";
 import { welcomeButtonStyle } from "../../common/styles/controlStyles";
 import { IRootState } from "../../store";

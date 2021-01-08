@@ -1,9 +1,8 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Dispatch } from "redux";
 import { dispatchRerenderStory, dispatchSaveAndRunStory, dispatchSetStory } from "../common/redux/viewedit.reducers";
-import { isNotEditMode } from "../common/routing/Routing";
+import { isPlayMode } from "../common/routing/Routing";
 import { hiddenAndInaccessible } from "../common/styles/controlStyles";
 
 /** A callback function after data loads that can be set from command invocation */
@@ -30,9 +29,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
 };
 
 export type OpenFileHandlerOwnProps = {};
-type CombinedProps = OpenFileHandlerOwnProps & RouteComponentProps & ReturnType<typeof mapDispatchToProps>;
+type CombinedProps = OpenFileHandlerOwnProps & ReturnType<typeof mapDispatchToProps>;
 
-export class OpenFileHandlerC extends React.Component<RouteComponentProps> {
+export class OpenFileHandlerC extends React.Component<OpenFileHandlerOwnProps> {
   public render() {
     /** Loads the given file to a string for parsing. */
     const handleFile = async (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,7 +43,7 @@ export class OpenFileHandlerC extends React.Component<RouteComponentProps> {
         fileReader.onloadend = () => {
           const result = fileReader.result as string;
 
-          if (isNotEditMode()) {
+          if (isPlayMode()) {
             (this.props as CombinedProps).saveAndRunStory(result);
           } else {
             (this.props as CombinedProps).setStory(result);
@@ -72,4 +71,4 @@ export class OpenFileHandlerC extends React.Component<RouteComponentProps> {
   }
 }
 
-export const OpenFileHandler = connect(null, mapDispatchToProps)(withRouter(OpenFileHandlerC));
+export const OpenFileHandler = connect(null, mapDispatchToProps)(OpenFileHandlerC);

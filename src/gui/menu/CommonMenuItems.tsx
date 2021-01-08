@@ -6,7 +6,6 @@ import { Icon } from "office-ui-fabric-react/lib/components/Icon/Icon";
 import { getStrings } from "../../common/localization/Localization";
 import { localizedStrings } from "../../common/localization/LocalizedStrings";
 import { dispatchSetLocale, dispatchSetTheme } from "../../common/settings/settings.reducers";
-import { saveToLocalStorage } from "../../common/storage/persistence";
 import {
   iconSpaceBeforeTextStyle,
   commandBarDropdownSeparatorStyle,
@@ -43,12 +42,10 @@ export const getCommonCommandItems = (values: IValues): ICommandBarItemProps[] =
     });
 
     /** Switches all GUI to display in the user-chosen language. */
-    const updateChangedLocale = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
+    const updateChangedLocale = (_: React.FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
       if (option !== undefined) {
         const localeId = option.data as keyof typeof localizedStrings;
-        values.setLocale(localeId).then(() => {
-          saveToLocalStorage(values.reduxState);
-        });
+        values.setLocale(localeId);
       }
     };
 
@@ -93,9 +90,7 @@ export const getCommonCommandItems = (values: IValues): ICommandBarItemProps[] =
     const updateChangedTheme = (_: React.FormEvent<HTMLDivElement>, option?: IDropdownOption) => {
       if (option !== undefined) {
         const theme = option.data as ISupportedTheme;
-        values.setTheme(theme).then(() => {
-          saveToLocalStorage(values.reduxState);
-        });
+        values.setTheme(theme);
       }
     };
 

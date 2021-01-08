@@ -1,3 +1,6 @@
+import React from "react";
+import { connect } from "react-redux";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 import { IRootState } from "../../store";
 import { ILocalizedStringSets } from "../localization/Localization";
 import { Themes, themes } from "../themes";
@@ -6,18 +9,25 @@ const persistStateVersion = 1;
 const persistStateIdentifier = "JoshuaTree";
 
 /** The object states to persist to local storage. */
-export interface IPersistentState {
+interface IPersistentState {
   localeId: keyof ILocalizedStringSets;
   saveFormatVersion: number;
   theme: keyof typeof themes;
+}
+
+/** The state variables that, when changed, trigger an attempt to save to local storage. */
+interface ISaveToLocalStorageProps {
+  theme: IRootState["settings"]["theme"];
+  locale: IRootState["settings"]["locale"];
+  userConsentProvided: IRootState["persistence"]["userConsentProvided"];
 }
 
 /**
  * Saves the given state to local storage. Users must accept the storage policy for data that
  * isn't essential to the service or anything that helps identify an individual.
  */
-export const saveToLocalStorage = (state: IRootState) => {
-  if (!state.persistence.userConsentProvided) {
+const saveToLocalStorage = (state: ISaveToLocalStorageProps) => {
+  if (!state.userConsentProvided) {
     return;
   }
 
@@ -26,13 +36,13 @@ export const saveToLocalStorage = (state: IRootState) => {
 
   themeKeys.forEach((key: Themes) => {
     const candidateThemeName = themes[key].localizedName;
-    if (candidateThemeName === state.settings.theme.localizedName) {
+    if (candidateThemeName === state.theme.localizedName) {
       theme = key;
     }
   });
 
   const newState: IPersistentState = {
-    localeId: state.settings.locale,
+    localeId: state.locale,
     saveFormatVersion: persistStateVersion,
     theme: theme,
   };
@@ -67,3 +77,36 @@ export const loadFromLocalStorage = (): IPersistentState | null => {
 
   return returnedState as IPersistentState;
 };
+
+const mapStateToProps = (state: IRootState): ISaveToLocalStorageProps => {
+  return {
+    locale: state.settings.locale,
+    theme: state.settings.theme,
+    userConsentProvided: state.persistence.userConsentProvided,
+  };
+};
+
+type LocalStorageSaveHandlerOwnProps = {};
+type LocalStorageSaveHandlerPropsWithRouteInfo = LocalStorageSaveHandlerOwnProps & RouteComponentProps;
+type CombinedProps = LocalStorageSaveHandlerPropsWithRouteInfo & ReturnType<typeof mapStateToProps>;
+
+export class LocalStorageSaveHandlerC extends React.Component<LocalStorageSaveHandlerPropsWithRouteInfo> {
+  public componentDidUpdate(prevProps: CombinedProps) {
+    const props = this.props as CombinedProps;
+
+    /**
+     * Any change of value connected to this component should trigger a save to local storage if allowed, except
+     * userConsentProvided.
+     */
+    if (prevProps.userConsentProvided === props.userConsentProvided) {
+      saveToLocalStorage(this.props as CombinedProps);
+    }
+  }
+
+  public render() {
+    return <></>;
+  }
+}
+
+/** Hooks up actions, some of which require current state or history, to commands. */
+export const LocalStorageSaveHandler = connect(mapStateToProps)(withRouter(LocalStorageSaveHandlerC));
