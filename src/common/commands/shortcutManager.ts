@@ -1,4 +1,4 @@
-import { commandIds, commands, ICommand, invokeCommand } from "./commands";
+import { commandIds, commands, ICommand, invokeCommand } from "./CommandHandler";
 
 /** A sequence of consecutive keystrokes that define a shortcut. */
 export interface IShortcut {

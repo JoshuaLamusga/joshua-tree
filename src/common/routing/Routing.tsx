@@ -8,12 +8,13 @@ import { dispatchSetLocale, dispatchSetTheme } from "../settings/settings.reduce
 import { Dispatch } from "redux";
 import { IRootState } from "../../store";
 import { connect } from "react-redux";
-import { loadFromLocalStorage } from "../storage/persistence";
+import { loadFromLocalStorage, LocalStorageSaveHandler } from "../storage/LocalStorageSaveHandler";
 import { localizedStrings } from "../localization/LocalizedStrings";
 import { themes } from "../themes";
 import { OpenFileHandler } from "../../gui/OpenFileHandler";
 import { RunnerView } from "../../gui/runner/RunnerView";
 import { MenuBar } from "../../gui/menu/MenuBar";
+import { CommandHandler } from "../commands/CommandHandler";
 
 export const routes = {
   base: "/",
@@ -40,9 +41,14 @@ export function isOnPage(route: keyof typeof routes) {
   return routes[route] === window.location.hash.replace(/\?.*/g, "").substring(1).toLowerCase();
 }
 
-/** Returns true when the user is playing a game or on the welcome page rather than authoring one. */
-export function isNotEditMode() {
-  return !isOnPage("edit");
+/** Returns true when the user is playing a game in play mode or one of its subpages. */
+export function isPlayMode() {
+  return window.location.hash.substring(1).toLowerCase().startsWith(routes["play"]);
+}
+
+/** Returns true when the user is authoring a game in edit mode or one of its subpages. */
+export function isEditMode() {
+  return window.location.hash.substring(1).toLowerCase().startsWith(routes["edit"]);
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
@@ -53,10 +59,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
 };
 
 type RoutingOwnProps = {};
-type RoutingPropsWithRouteInfo = RoutingOwnProps;
 type CombinedProps = RoutingOwnProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 
-export class RoutingC extends React.Component<RoutingPropsWithRouteInfo> {
+export class RoutingC extends React.Component<RoutingOwnProps> {
   /** Applies all user setting stored in local storage, if consent was provided. */
   public componentDidMount() {
     if ((this.props as CombinedProps).userConsentProvided) {
@@ -68,6 +73,8 @@ export class RoutingC extends React.Component<RoutingPropsWithRouteInfo> {
     return (
       <>
         <OpenFileHandler />
+        <LocalStorageSaveHandler />
+        <CommandHandler />
         <MenuBar />
         <Switch>
           <Route path={routes.base} exact={true} component={Welcome} />

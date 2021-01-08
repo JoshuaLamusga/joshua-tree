@@ -12,7 +12,6 @@ import { getEditorCommandItems } from "../editor/EditorMenuItems";
 import { commandBarStyle } from "../../common/styles/controlStyles";
 import { getRunnerCommandItems } from "../runner/RunnerMenuItems";
 import { getCommonCommandItems } from "./CommonMenuItems";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 
 const mapStateToProps = (state: IRootState) => {
   return {
@@ -33,12 +32,9 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
 };
 
 type MenuBarOwnProps = {};
-type MenuBarWithRouterProps = MenuBarOwnProps & RouteComponentProps;
-type CombinedProps = MenuBarWithRouterProps &
-  ReturnType<typeof mapStateToProps> &
-  ReturnType<typeof mapDispatchToProps>;
+type CombinedProps = MenuBarOwnProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 
-export class MenuBarC extends React.Component<MenuBarWithRouterProps> {
+export class MenuBarC extends React.Component<MenuBarOwnProps> {
   public render() {
     const combinedProps = this.props as CombinedProps;
 
@@ -68,4 +64,4 @@ export class MenuBarC extends React.Component<MenuBarWithRouterProps> {
   }
 }
 
-export const MenuBar = connect(mapStateToProps, mapDispatchToProps)(withRouter(MenuBarC));
+export const MenuBar = connect(mapStateToProps, mapDispatchToProps)(MenuBarC);

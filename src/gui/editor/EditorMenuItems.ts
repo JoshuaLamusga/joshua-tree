@@ -1,12 +1,10 @@
-import { commandIds, invokeCommand } from "../../common/commands/commands";
+import { commandIds, invokeCommand } from "../../common/commands/CommandHandler";
 import { getStrings } from "../../common/localization/Localization";
 import { commandBarItemStyle } from "../../common/styles/controlStyles";
 import { getTheme } from "office-ui-fabric-react/lib/Styling";
 import { ICommandBarItemProps } from "office-ui-fabric-react/lib/components/CommandBar/CommandBar.types";
-import { RouteComponentProps } from "react-router-dom";
 
 interface IValues {
-  history: RouteComponentProps["history"];
   strings: ReturnType<typeof getStrings>;
   wholeTheme: ReturnType<typeof getTheme>;
 }
@@ -48,7 +46,7 @@ export const getEditorCommandItems = (values: IValues) => {
       tooltipHostProps: { content: values.strings.MenuFileSwitch },
       iconOnly: true,
       iconProps: { iconName: "Switch" },
-      onClick: () => invokeCommand(commandIds.switchMode, { data: { history: values.history } }),
+      onClick: () => invokeCommand(commandIds.switchMode),
     },
   ];
 
