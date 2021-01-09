@@ -31,7 +31,7 @@ const saveToLocalStorage = (state: ISaveToLocalStorageProps) => {
     return;
   }
 
-  let theme = Themes.DefaultLight;
+  let theme = Themes.Default;
   const themeKeys = (Object.keys(themes) as unknown) as (keyof typeof themes)[];
 
   themeKeys.forEach((key: Themes) => {

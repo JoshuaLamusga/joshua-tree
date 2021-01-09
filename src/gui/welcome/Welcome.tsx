@@ -1,5 +1,3 @@
-// TODO: localize Play and New buttons
-
 import { DefaultButton } from "office-ui-fabric-react";
 import * as React from "react";
 import { connect } from "react-redux";
@@ -8,9 +6,11 @@ import { commandIds, invokeCommand } from "../../common/commands/CommandHandler"
 import { routes } from "../../common/routing/Routing";
 import { welcomeButtonStyle } from "../../common/styles/controlStyles";
 import { IRootState } from "../../store";
+import { getStrings } from "../../common/localization/Localization";
 
 const mapStateToProps = (state: IRootState) => {
   return {
+    strings: getStrings(state.settings.locale),
     theme: state.settings.theme,
   };
 };
@@ -32,25 +32,25 @@ export class WelcomeC extends React.Component<CombinedProps> {
         }}
       >
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <DefaultButton onClick={this.onClickLoadGame} styles={buttonStyle}>
-            Open & Play
+          <DefaultButton onClick={this.onClickPlayProject} styles={buttonStyle}>
+            {(this.props as CombinedProps).strings.WelcomeButtonOpenPlay}
           </DefaultButton>
         </div>
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <DefaultButton onClick={this.onClickLoadProject} styles={buttonStyle}>
-            Open & Edit
+          <DefaultButton onClick={this.onClickEditProject} styles={buttonStyle}>
+            {(this.props as CombinedProps).strings.WelcomeButtonOpenEdit}
           </DefaultButton>
         </div>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <DefaultButton onClick={this.onClickNew} styles={buttonStyle}>
-            New
+            {(this.props as CombinedProps).strings.WelcomeButtonNew}
           </DefaultButton>
         </div>
       </div>
     );
   }
 
-  private onClickLoadGame = () => {
+  private onClickPlayProject = () => {
     invokeCommand(commandIds.openProjectOrGame, {
       data: {
         data: () => {
@@ -60,7 +60,7 @@ export class WelcomeC extends React.Component<CombinedProps> {
     });
   };
 
-  private onClickLoadProject = () => {
+  private onClickEditProject = () => {
     invokeCommand(commandIds.openProjectOrGame, {
       data: {
         data: () => {
