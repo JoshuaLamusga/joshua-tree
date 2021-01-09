@@ -72,13 +72,18 @@ export interface ILocalizedStrings {
   RunnerRestart: string;
   ThemeContrastDark: string;
   ThemeContrastLight: string;
-  ThemeDefaultDark: string;
-  ThemeDefaultLight: string;
+  ThemeDefault: string;
   ThemeDeepSea: string;
+  ThemeDim: string;
   ThemeEarthAndSky: string;
-  ThemeMidnightEarth: string;
+  ThemeMidnight: string;
+  ThemeMuted: string;
+  ThemeSlate: string;
   ThemeDropdownText: (themeName: string) => string;
   TipLanguage: string;
   TipNavigateCommandBar: string;
   TipTheme: string;
+  WelcomeButtonOpenPlay: string;
+  WelcomeButtonOpenEdit: string;
+  WelcomeButtonNew: string;
 }

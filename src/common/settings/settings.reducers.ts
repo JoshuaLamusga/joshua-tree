@@ -5,7 +5,7 @@ import { actions, setLocale, setTheme } from "./settings.actions";
 import { loadTheme } from "office-ui-fabric-react/lib/Styling";
 
 /** The user's preferred theme. An empty string here should mean the default theme is applied. */
-const theme = (state: ISupportedTheme = themes[Themes.DefaultLight], action: ReturnType<typeof setTheme>) => {
+const theme = (state: ISupportedTheme = themes[Themes.Default], action: ReturnType<typeof setTheme>) => {
   if (action.type === actions.setTheme && state.theme !== action.theme.theme) {
     loadTheme(action.theme.theme);
     return action.theme;
