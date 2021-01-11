@@ -1,5 +1,11 @@
 import { combineReducers, Dispatch } from "redux";
-import { actions, setCustomizationApplied, setUserConsentProvided } from "./persistence.actions";
+import {
+  actions,
+  IPersistentState,
+  setCustomizationApplied,
+  setFromLocalStorage,
+  setUserConsentProvided,
+} from "./persistence.actions";
 
 /**
  * True if the user accepts the storage policy. Until the user accepts, data that isn't essential
@@ -14,11 +20,6 @@ const userConsentProvided = (state = true, action: ReturnType<typeof setUserCons
   }
 
   return state;
-};
-
-/** Sets whether the user has consented to the storage policy. */
-export const dispatchSetUserConsentProvided = (dispatch: Dispatch) => (isConsentGiven: boolean) => {
-  dispatch(setUserConsentProvided(isConsentGiven));
 };
 
 /**
@@ -36,6 +37,15 @@ const customizationApplied = (state = false, action: ReturnType<typeof setCustom
 /** Sets the locale id in lowercase, such as en-us. */
 export const dispatchSetCustomizationApplied = (dispatch: Dispatch) => (isCustomizationApplied: boolean) => {
   dispatch(setCustomizationApplied(isCustomizationApplied));
+};
+
+export const dispatchSetFromLocalStorage = (dispatch: Dispatch) => (state: Partial<IPersistentState>) => {
+  dispatch(setFromLocalStorage(state));
+};
+
+/** Sets whether the user has consented to the storage policy. */
+export const dispatchSetUserConsentProvided = (dispatch: Dispatch) => (isConsentGiven: boolean) => {
+  dispatch(setUserConsentProvided(isConsentGiven));
 };
 
 // Combine reducers and typescript definition.

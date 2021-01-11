@@ -4,17 +4,17 @@ import { Welcome } from "../../gui/welcome/Welcome";
 import { RunnerEditorView } from "../../gui/runner-editor/RunnerEditorView";
 import { getStrings } from "../localization/Localization";
 import { getTheme } from "office-ui-fabric-react/lib/Styling";
-import { dispatchSetLocale, dispatchSetTheme } from "../settings/settings.reducers";
 import { Dispatch } from "redux";
 import { IRootState } from "../../store";
 import { connect } from "react-redux";
-import { loadFromLocalStorage, LocalStorageSaveHandler } from "../storage/LocalStorageSaveHandler";
-import { localizedStrings } from "../localization/LocalizedStrings";
-import { themes } from "../themes";
 import { OpenFileHandler } from "../../gui/OpenFileHandler";
 import { RunnerView } from "../../gui/runner/RunnerView";
 import { MenuBar } from "../../gui/menu/MenuBar";
+import { RunnerSettings } from "../../gui/runner/RunnerSettings";
+import { EditorSettings } from "../../gui/editor/EditorSettings";
+import { loadFromLocalStorage, LocalStorageSaveHandler } from "../storage/LocalStorageSaveHandler";
 import { CommandHandler } from "../commands/CommandHandler";
+import { dispatchSetFromLocalStorage } from "../storage/persistence.reducers";
 
 export const routes = {
   base: "/",
@@ -22,8 +22,13 @@ export const routes = {
   /** Navigates to the runner (player view). */
   play: "/play",
 
+  /** Navigates to the runner settings. */
+  playSettings: "/play/settings",
+
   /** Navigates to the editor (author view). */
   edit: "/edit",
+
+  editSettings: "/edit/settings",
 };
 
 const mapStateToProps = (state: IRootState) => {
@@ -53,8 +58,7 @@ export function isEditMode() {
 
 const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
-    setLocale: dispatchSetLocale(dispatch),
-    setTheme: dispatchSetTheme(dispatch),
+    setFromLocalStorage: dispatchSetFromLocalStorage(dispatch),
   };
 };
 
@@ -62,10 +66,12 @@ type RoutingOwnProps = {};
 type CombinedProps = RoutingOwnProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 
 export class RoutingC extends React.Component<RoutingOwnProps> {
-  /** Applies all user setting stored in local storage, if consent was provided. */
+  /** Applies all user setting stored in local storage if allowed. */
   public componentDidMount() {
-    if ((this.props as CombinedProps).userConsentProvided) {
-      this.applyLocalStorage();
+    const combinedProps = this.props as CombinedProps;
+
+    if (combinedProps.userConsentProvided) {
+      loadFromLocalStorage(combinedProps.setFromLocalStorage);
     }
   }
 
@@ -78,26 +84,14 @@ export class RoutingC extends React.Component<RoutingOwnProps> {
         <MenuBar />
         <Switch>
           <Route path={routes.base} exact={true} component={Welcome} />
-          <Route path={routes.edit} component={RunnerEditorView} />
-          <Route path={routes.play} component={RunnerView} />
+          <Route path={routes.edit} exact={true} component={RunnerEditorView} />
+          <Route path={routes.editSettings} component={EditorSettings} />
+          <Route path={routes.play} exact={true} component={RunnerView} />
+          <Route path={routes.playSettings} component={RunnerSettings} />
         </Switch>
       </>
     );
   }
-
-  /** Updates redux with content loaded from local storage. */
-  private applyLocalStorage = () => {
-    const state = loadFromLocalStorage();
-    if (state !== null) {
-      if (state.localeId in localizedStrings) {
-        (this.props as CombinedProps).setLocale(state.localeId);
-      }
-
-      if (themes[state.theme] !== null) {
-        (this.props as CombinedProps).setTheme(themes[state.theme]);
-      }
-    }
-  };
 }
 
 export const Routing = connect(mapStateToProps, mapDispatchToProps)(RoutingC);

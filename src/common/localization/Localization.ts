@@ -64,11 +64,14 @@ export interface ILocalizedStrings {
   ApplicationNameAndVersion: (appName: string, appVersion: string) => string;
   EditorPlay: string;
   LanguageCodeName: string;
+  MenuBack: string;
   MenuFile: string;
   MenuFileNew: string;
   MenuFileOpen: string;
   MenuFileSave: string;
   MenuFileSwitch: string;
+  MenuPrefRunnerSettings: string;
+  MenuPrefEditorSettings: string;
   RunnerRestart: string;
   ThemeContrastDark: string;
   ThemeContrastLight: string;

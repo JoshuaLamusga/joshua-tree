@@ -3,6 +3,8 @@ import * as actions from "./playerStorySettings.actions";
 import { IAction } from "./reduxTools";
 import * as types from "./typedefs";
 import { newStory } from "./viewedit.actions";
+import * as persistence from "../storage/persistence.actions";
+import { cleanLoadedTextStyle } from "../storage/LocalStorageSaveHandler";
 
 const playerStoryInputStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setPlayerStoryInputStyles) {
@@ -10,6 +12,13 @@ const playerStoryInputStyles = (state = {}, action: IAction) => {
   }
   if (action.type === newStory.type) {
     return {};
+  }
+  if (action.type === persistence.actions.setFromLocalStorage) {
+    const typedAction = action as ReturnType<typeof persistence.setFromLocalStorage>;
+
+    if (typedAction.persistentState.playerStorySettings?.playerStoryInputStyles) {
+      return cleanLoadedTextStyle(typedAction.persistentState.playerStorySettings.playerStoryInputStyles);
+    }
   }
 
   return state;
@@ -22,6 +31,13 @@ const playerStoryLogSeparatorStyles = (state = {}, action: IAction) => {
   if (action.type === newStory.type) {
     return {};
   }
+  if (action.type === persistence.actions.setFromLocalStorage) {
+    const typedAction = action as ReturnType<typeof persistence.setFromLocalStorage>;
+
+    if (typedAction.persistentState.playerStorySettings?.playerStoryLogSeparatorStyles) {
+      return typedAction.persistentState.playerStorySettings.playerStoryLogSeparatorStyles;
+    }
+  }
 
   return state;
 };
@@ -32,6 +48,13 @@ const playerStoryOptionStyles = (state = {}, action: IAction) => {
   }
   if (action.type === newStory.type) {
     return {};
+  }
+  if (action.type === persistence.actions.setFromLocalStorage) {
+    const typedAction = action as ReturnType<typeof persistence.setFromLocalStorage>;
+
+    if (typedAction.persistentState.playerStorySettings?.playerStoryOptionStyles) {
+      return cleanLoadedTextStyle(typedAction.persistentState.playerStorySettings.playerStoryOptionStyles);
+    }
   }
 
   return state;
@@ -44,6 +67,13 @@ const playerStoryOptionHighlightStyles = (state = {}, action: IAction) => {
   if (action.type === newStory.type) {
     return {};
   }
+  if (action.type === persistence.actions.setFromLocalStorage) {
+    const typedAction = action as ReturnType<typeof persistence.setFromLocalStorage>;
+
+    if (typedAction.persistentState.playerStorySettings?.playerStoryOptionHighlightStyles) {
+      return cleanLoadedTextStyle(typedAction.persistentState.playerStorySettings.playerStoryOptionHighlightStyles);
+    }
+  }
 
   return state;
 };
@@ -54,6 +84,13 @@ const playerStoryOutputStyles = (state = {}, action: IAction) => {
   }
   if (action.type === newStory.type) {
     return {};
+  }
+  if (action.type === persistence.actions.setFromLocalStorage) {
+    const typedAction = action as ReturnType<typeof persistence.setFromLocalStorage>;
+
+    if (typedAction.persistentState.playerStorySettings?.playerStoryOutputStyles) {
+      return cleanLoadedTextStyle(typedAction.persistentState.playerStorySettings.playerStoryOutputStyles);
+    }
   }
 
   return state;
@@ -66,6 +103,13 @@ const playerStoryRunnerOptions = (state = {}, action: IAction) => {
   if (action.type === newStory.type) {
     return {};
   }
+  if (action.type === persistence.actions.setFromLocalStorage) {
+    const typedAction = action as ReturnType<typeof persistence.setFromLocalStorage>;
+
+    if (typedAction.persistentState.playerStorySettings?.playerStoryRunnerOptions) {
+      return typedAction.persistentState.playerStorySettings.playerStoryRunnerOptions;
+    }
+  }
 
   return state;
 };
@@ -76,6 +120,13 @@ const playerStoryRunnerStyles = (state = { background: { type: "plain" } }, acti
   }
   if (action.type === newStory.type) {
     return { background: { type: "plain" } };
+  }
+  if (action.type === persistence.actions.setFromLocalStorage) {
+    const typedAction = action as ReturnType<typeof persistence.setFromLocalStorage>;
+
+    if (typedAction.persistentState.playerStorySettings?.playerStoryRunnerStyles) {
+      return typedAction.persistentState.playerStorySettings.playerStoryRunnerStyles;
+    }
   }
 
   return state;

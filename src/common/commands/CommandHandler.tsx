@@ -131,7 +131,6 @@ export class CommandHandlerC extends React.Component<CommandHandlerPropsWithRout
   }
 
   private actionSwitchMode = () => {
-    debugger;
     if (isPlayMode()) {
       this.props.history.push(routes.edit);
     } else if (isEditMode()) {

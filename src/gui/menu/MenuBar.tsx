@@ -12,6 +12,9 @@ import { getEditorCommandItems } from "../editor/EditorMenuItems";
 import { commandBarStyle } from "../../common/styles/controlStyles";
 import { getRunnerCommandItems } from "../runner/RunnerMenuItems";
 import { getCommonCommandItems } from "./CommonMenuItems";
+import { RouteComponentProps, withRouter } from "react-router-dom";
+import { getRunnerSettingsCommandItems } from "../runner/RunnerSettingsMenuItems";
+import { getEditorSettingsCommandItems } from "../editor/EditorSettingsMenuItems";
 
 const mapStateToProps = (state: IRootState) => {
   return {
@@ -32,9 +35,10 @@ const mapDispatchToProps = (dispatch: Dispatch) => {
 };
 
 type MenuBarOwnProps = {};
-type CombinedProps = MenuBarOwnProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
+type MenuBarRoutingProps = MenuBarOwnProps & RouteComponentProps;
+type CombinedProps = MenuBarRoutingProps & ReturnType<typeof mapStateToProps> & ReturnType<typeof mapDispatchToProps>;
 
-export class MenuBarC extends React.Component<MenuBarOwnProps> {
+export class MenuBarC extends React.Component<MenuBarRoutingProps> {
   public render() {
     const combinedProps = this.props as CombinedProps;
 
@@ -45,10 +49,18 @@ export class MenuBarC extends React.Component<MenuBarOwnProps> {
       const editorItems = getEditorCommandItems(combinedProps);
       items = editorItems.items;
       farItems = [...editorItems.farItems, ...farItems];
+    } else if (isOnPage("editSettings")) {
+      const editorSettingsItems = getEditorSettingsCommandItems(combinedProps);
+      items = editorSettingsItems.items;
+      farItems = [];
     } else if (isOnPage("play")) {
       const runnerItems = getRunnerCommandItems(combinedProps);
       items = runnerItems.items;
       farItems = [...runnerItems.farItems, ...farItems];
+    } else if (isOnPage("playSettings")) {
+      const runnerSettingsItems = getRunnerSettingsCommandItems(combinedProps);
+      items = runnerSettingsItems.items;
+      farItems = [];
     } else {
       items = [];
     }
@@ -64,4 +76,4 @@ export class MenuBarC extends React.Component<MenuBarOwnProps> {
   }
 }
 
-export const MenuBar = connect(mapStateToProps, mapDispatchToProps)(MenuBarC);
+export const MenuBar = connect(mapStateToProps, mapDispatchToProps)(withRouter(MenuBarC));

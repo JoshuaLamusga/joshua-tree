@@ -28,7 +28,7 @@ export const dispatchSetTempStoryRunnerOptions = (dispatch: Dispatch) => (option
 
 // Combine reducers and typescript definition.
 export interface ICurrentRunnerSettingsState {
-  currentRunnerSettings: types.IAuthorRunnerOptions;
+  currentRunnerOptions: types.IAuthorRunnerOptions;
 }
 
 export const currentRunnerSettings = combineReducers({

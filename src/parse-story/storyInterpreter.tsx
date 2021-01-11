@@ -368,12 +368,12 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
 
       if (line.startsWith("link-style-text")) {
         combinedProps.dispatchSetTempStoryRunnerOptions({
-          ...combinedProps.currentStorySettings.currentRunnerSettings,
+          ...combinedProps.currentStorySettings.currentRunnerOptions,
           discreteInlineLinks: true,
         });
       } else if (line.startsWith("option-default-disable")) {
         combinedProps.dispatchSetTempStoryRunnerOptions({
-          ...combinedProps.currentStorySettings.currentRunnerSettings,
+          ...combinedProps.currentStorySettings.currentRunnerOptions,
           hideRestartLink: true,
         });
       } else if (

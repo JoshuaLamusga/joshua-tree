@@ -38,6 +38,15 @@ export class EditorViewC extends React.Component<EditorViewOwnProps> {
     }
   }
 
+  /** Saves the story automatically when switching away from the page that renders the editor view. */
+  public componentWillUnmount() {
+    const currentStory = (document.getElementById(idEditorInputfield) as HTMLTextAreaElement).value;
+
+    if ((this.props as CombinedProps).story !== currentStory) {
+      (this.props as CombinedProps).setStory(currentStory);
+    }
+  }
+
   public render() {
     const combinedProps = this.props as CombinedProps;
 
