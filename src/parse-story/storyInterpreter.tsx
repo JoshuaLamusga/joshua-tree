@@ -14,7 +14,7 @@ import {
 } from "../common/identifiers";
 import { IRootState } from "../store";
 import { connect } from "react-redux";
-import { dispatchRerenderStory } from "../common/redux/viewedit.reducers";
+import { dispatchRerenderStory } from "../gui/editor/viewedit.reducers";
 import { Dispatch } from "redux";
 import { runnerWrapperStyle, runnerOutputWrapperStyle, fallbackFontStack } from "../common/styles/controlStyles";
 import { ThemeTypes } from "../common/themes";
@@ -28,8 +28,8 @@ import { TokenFunc } from "../parse-expressions/TokenFunc";
 import { TokenId } from "../parse-expressions/TokenId";
 import { TokenNum } from "../parse-expressions/TokenNum";
 import { ITextStyle } from "../common/redux/typedefs";
-import { dispatchSetTempStoryRunnerOptions } from "../common/redux/currentRunnerSettings.reducers";
-import { dispatchSetAuthorStoryRunnerStyles } from "../common/redux/authorStorySettings.reducers";
+import { dispatchSetTempStoryRunnerOptions } from "../gui/editor-settings-page/currentRunnerSettings.reducers";
+import { dispatchSetAuthorStoryRunnerStyles } from "../gui/editor-settings-page/authorStorySettings.reducers";
 import { Random } from "../common/random";
 import { fallbackElementType, getTextStyle } from "../common/styles/interpreterStyles";
 import { TextField } from "office-ui-fabric-react/lib/components/TextField/TextField";
@@ -183,6 +183,18 @@ export class StoryInterpreterC extends React.Component<StoryInterpreterOwnProps>
       const prefix = fromOption
         ? props.authorStorySettings.authorStoryStrings.inputOptionPrefixText || "• "
         : props.authorStorySettings.authorStoryStrings.inputTextboxPrefixText || "→ ";
+
+      console.log(
+        JSON.stringify(
+          getTextStyle(
+            props.theme,
+            !props.debugging ? props.playerStorySettings.playerStoryInputStyles : {},
+            {}, // can't pass styles
+            props.authorStorySettings.authorStoryInputStyles,
+            fallbackElementType.input
+          )
+        )
+      );
 
       return (
         <p

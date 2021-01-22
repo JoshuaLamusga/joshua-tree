@@ -1,7 +1,7 @@
 import * as React from "react";
 import { invokeOpenCommand } from "../../gui/OpenFileHandler";
 import { IRootState, store } from "../../store";
-import { newStory } from "../redux/viewedit.actions";
+import { newStory } from "../../gui/editor/viewedit.actions";
 import { isEditMode, isPlayMode, routes } from "../routing/Routing";
 import { IShortcut } from "./shortcutManager";
 import { RouteComponentProps, withRouter } from "react-router-dom";

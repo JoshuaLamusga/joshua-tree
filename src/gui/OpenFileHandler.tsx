@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
-import { dispatchRerenderStory, dispatchSaveAndRunStory, dispatchSetStory } from "../common/redux/viewedit.reducers";
+import { dispatchRerenderStory, dispatchSaveAndRunStory, dispatchSetStory } from "./editor/viewedit.reducers";
 import { isPlayMode } from "../common/routing/Routing";
 import { hiddenAndInaccessible } from "../common/styles/controlStyles";
 

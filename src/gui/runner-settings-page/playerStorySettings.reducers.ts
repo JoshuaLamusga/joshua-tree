@@ -1,10 +1,10 @@
 import { combineReducers, Dispatch } from "redux";
 import * as actions from "./playerStorySettings.actions";
-import { IAction } from "./reduxTools";
-import * as types from "./typedefs";
-import { newStory } from "./viewedit.actions";
-import * as persistence from "../storage/persistence.actions";
-import { cleanLoadedTextStyle } from "../storage/LocalStorageSaveHandler";
+import { IAction } from "../../common/redux/reduxTools";
+import * as types from "../../common/redux/typedefs";
+import { newStory } from "../editor/viewedit.actions";
+import * as persistence from "../../common/storage/persistence.actions";
+import { cleanLoadedTextStyle } from "../../common/storage/LocalStorageSaveHandler";
 
 const playerStoryInputStyles = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setPlayerStoryInputStyles) {

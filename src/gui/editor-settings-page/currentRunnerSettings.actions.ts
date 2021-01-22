@@ -1,5 +1,5 @@
-import { getActionGuid } from "./reduxTools";
-import { IAuthorRunnerOptions } from "./typedefs";
+import { getActionGuid } from "../../common/redux/reduxTools";
+import { IAuthorRunnerOptions } from "../../common/redux/typedefs";
 
 export const actions = {
   clearAllTempSettings: getActionGuid(),

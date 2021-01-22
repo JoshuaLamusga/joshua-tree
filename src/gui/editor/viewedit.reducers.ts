@@ -1,5 +1,5 @@
 import { combineReducers, Dispatch } from "redux";
-import { IAction } from "./reduxTools";
+import { IAction } from "../../common/redux/reduxTools";
 import { actions, updateStory, saveAndRunStory, rerenderStory, newStory } from "./viewedit.actions";
 
 /**

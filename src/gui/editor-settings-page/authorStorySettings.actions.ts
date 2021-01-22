@@ -1,11 +1,11 @@
-import { getActionGuid } from "./reduxTools";
+import { getActionGuid } from "../../common/redux/reduxTools";
 import {
   IRunnerLogSeparatorStyle,
   IRunnerStyle,
   IAuthorRunnerOptions,
   ITextStyle,
   IAuthorRunnerStrings,
-} from "./typedefs";
+} from "../../common/redux/typedefs";
 
 export const actions = {
   setAuthorStoryInputStyles: getActionGuid(),

@@ -54,10 +54,11 @@ export const getEditorCommandItems = (values: IValues) => {
 
   const farItems: ICommandBarItemProps[] = [
     {
+      ariaLabel: values.strings.MenuFileSwitchToPlay,
       className: commandBarItemStyle(values.wholeTheme),
       data: commandIds.switchMode,
       key: "userSettingsCommandBarFileMenuSwitchMode",
-      tooltipHostProps: { content: values.strings.MenuFileSwitch },
+      tooltipHostProps: { content: values.strings.MenuFileSwitchToPlay },
       iconOnly: true,
       iconProps: { iconName: "Switch" },
       onClick: () => invokeCommand(commandIds.switchMode),

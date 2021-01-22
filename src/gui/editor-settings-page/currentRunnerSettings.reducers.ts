@@ -1,8 +1,8 @@
 import { combineReducers, Dispatch } from "redux";
 import * as actions from "./currentRunnerSettings.actions";
-import { IAction } from "./reduxTools";
-import * as types from "./typedefs";
-import { newStory } from "./viewedit.actions";
+import { IAction } from "../../common/redux/reduxTools";
+import * as types from "../../common/redux/typedefs";
+import { newStory } from "../editor/viewedit.actions";
 
 const currentRunnerOptions = (state = {}, action: IAction) => {
   if (action.type === actions.actions.setCurrentRunnerOptions) {

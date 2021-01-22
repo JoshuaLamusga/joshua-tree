@@ -13,8 +13,8 @@ import { commandBarStyle } from "../../common/styles/controlStyles";
 import { getRunnerCommandItems } from "../runner/RunnerMenuItems";
 import { getCommonCommandItems } from "./CommonMenuItems";
 import { RouteComponentProps, withRouter } from "react-router-dom";
-import { getRunnerSettingsCommandItems } from "../runner/RunnerSettingsMenuItems";
-import { getEditorSettingsCommandItems } from "../editor/EditorSettingsMenuItems";
+import { getRunnerSettingsCommandItems } from "../runner-settings-page/RunnerSettingsMenuItems";
+import { getEditorSettingsCommandItems } from "../editor-settings-page/EditorSettingsMenuItems";
 
 const mapStateToProps = (state: IRootState) => {
   return {

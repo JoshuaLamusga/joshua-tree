@@ -1,5 +1,5 @@
-import { getActionGuid } from "./reduxTools";
-import { IRunnerLogSeparatorStyle, IRunnerStyle, IPlayerRunnerOptions, ITextStyle } from "./typedefs";
+import { getActionGuid } from "../../common/redux/reduxTools";
+import { IRunnerLogSeparatorStyle, IRunnerStyle, IPlayerRunnerOptions, ITextStyle } from "../../common/redux/typedefs";
 
 export const actions = {
   setPlayerStoryInputStyles: getActionGuid(),

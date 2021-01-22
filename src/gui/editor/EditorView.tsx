@@ -2,7 +2,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { idEditorInputfield } from "../../common/identifiers";
-import { dispatchSaveAndRunStory, dispatchSetStory } from "../../common/redux/viewedit.reducers";
+import { dispatchSaveAndRunStory, dispatchSetStory } from "./viewedit.reducers";
 import { IRootState } from "../../store";
 import { editorTextAreaStyle } from "../../common/styles/controlStyles";
 import { PrimaryButton } from "office-ui-fabric-react/lib/components/Button/PrimaryButton/PrimaryButton";

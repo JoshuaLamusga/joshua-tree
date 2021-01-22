@@ -11,7 +11,10 @@ import { Routing } from "./common/routing/Routing";
 
 initializeIcons(); // Ensures all icons are available.
 listenForShortcuts(); // Hooks up global key listeners.
-loadTheme(themes[Themes.Default].theme); // Applies the default light theme.
+
+// Applies the default light theme.
+loadTheme(themes[Themes.Default].theme);
+document.body.style.backgroundColor = themes[Themes.Default].theme.semanticColors.bodyBackground;
 
 ReactDOM.render(
   <Provider store={store}>

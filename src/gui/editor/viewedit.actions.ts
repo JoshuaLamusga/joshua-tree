@@ -1,4 +1,4 @@
-import { getActionGuid } from "./reduxTools";
+import { getActionGuid } from "../../common/redux/reduxTools";
 
 export const actions = {
   newStory: getActionGuid(),

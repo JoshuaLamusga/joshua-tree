@@ -32,6 +32,7 @@ export const getRunnerCommandItems = (values: IValues) => {
       onClick: () => invokeCommand(commandIds.saveProjectOrGame),
     },
     {
+      ariaLabel: "Settings", //TODO: localize
       className: commandBarItemStyle(values.wholeTheme),
       key: "userSettingsCommandBarPrefMenuSettings",
       name: values.strings.MenuFileSave,
@@ -46,10 +47,11 @@ export const getRunnerCommandItems = (values: IValues) => {
 
   const farItems: ICommandBarItemProps[] = [
     {
+      ariaLabel: values.strings.MenuFileSwitchToEdit,
       className: commandBarItemStyle(values.wholeTheme),
       data: commandIds.switchMode,
       key: "userSettingsCommandBarFileMenuSwitchMode",
-      tooltipHostProps: { content: values.strings.MenuFileSwitch },
+      tooltipHostProps: { content: values.strings.MenuFileSwitchToEdit },
       iconOnly: true,
       iconProps: { iconName: "Switch" },
       onClick: () => invokeCommand(commandIds.switchMode),

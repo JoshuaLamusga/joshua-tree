@@ -112,7 +112,7 @@ export const editorTextAreaStyle = (theme: ITheme): React.CSSProperties => {
 };
 
 /** Fonts to use in case other fonts are not available. */
-export const fallbackFontStack = "Calibri; Times New Roman; Courier New; sans-serif";
+export const fallbackFontStack = "Calibri, Times New Roman, Courier New, sans-serif";
 
 /** Display none. */
 export const hiddenAndInaccessible = mergeStyles({

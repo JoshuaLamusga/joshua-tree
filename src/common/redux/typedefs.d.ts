@@ -6,7 +6,7 @@ export interface ITextStyle {
   /** Text color as seen in light theme. Defaults to light theme text color. */
   colorLight?: string;
 
-  /** Text size. Defaults to 1 rem. */
+  /** Text size. Defaults to 1 rem. Only px and rem should be used. */
   fontSize?: string;
 
   /** Font styles (i = italic, b = bold, u = underline). Defaults to being unstyled. */
